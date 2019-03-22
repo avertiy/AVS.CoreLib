@@ -1,0 +1,190 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6A539BB8-F9D2-4787-890C-D5CD7B259FCD}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AVS.CoreLib</RootNamespace>
+    <AssemblyName>AVS.CoreLib</AssemblyName>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Autofac, Version=4.6.2.0, Culture=neutral, PublicKeyToken=17863af14b0044da, processorArchitecture=MSIL">
+      <HintPath>..\packages\Autofac.4.6.2\lib\net45\Autofac.dll</HintPath>
+    </Reference>
+    <Reference Include="AutoMapper, Version=6.2.2.0, Culture=neutral, PublicKeyToken=be96cd2c38ef1005, processorArchitecture=MSIL">
+      <HintPath>..\packages\AutoMapper.6.2.2\lib\net45\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Newtonsoft.Json, Version=11.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.11.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Runtime.Caching" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Caching\Extensions.cs" />
+    <Compile Include="Caching\ICacheManager.cs" />
+    <Compile Include="Caching\MemoryCacheManager.cs" />
+    <Compile Include="Caching\NullCache.cs" />
+    <Compile Include="ClientApi\WebClients\BaseWebClient.cs" />
+    <Compile Include="ClientApi\WebClients\Authenticator.cs" />
+    <Compile Include="ClientApi\BaseApiClient.cs" />
+    <Compile Include="ClientApi\WebClients\IWebClient.cs" />
+    <Compile Include="ClientApi\Command.cs" />
+    <Compile Include="ClientApi\WebClients\PrivateApiWebClient.cs" />
+    <Compile Include="ClientApi\WebClients\PublicApiWebClient.cs" />
+    <Compile Include="Json\Projections\DictionaryProjection.cs" />
+    <Compile Include="Json\Projections\EnumerableProjection.cs" />
+    <Compile Include="Json\JsonHelper.cs" />
+    <Compile Include="ClientApi\ApiToolsBase.cs" />
+    <Compile Include="DependencyRegistrar\DependencyRegistrarBase.cs" />
+    <Compile Include="Events\SubscriptionService.cs" />
+    <Compile Include="Extensions\DictionaryExtensions.cs" />
+    <Compile Include="Extensions\DistinctByExtensions.cs" />
+    <Compile Include="Extensions\SystemExtensions.cs" />
+    <Compile Include="Infrastructure\AppDomainTypeFinder.cs" />
+    <Compile Include="Infrastructure\AutoMapper\AutoMapperConfiguration.cs" />
+    <Compile Include="Infrastructure\AutoMapper\IMapperConfiguration.cs" />
+    <Compile Include="Infrastructure\AutoMapper\MapperExtensions.cs" />
+    <Compile Include="Infrastructure\Config\XmlConfigNodeBase.cs" />
+    <Compile Include="Infrastructure\ContainerManager.cs" />
+    <Compile Include="Infrastructure\DefaultEngine.cs" />
+    <Compile Include="DependencyRegistrar\DependencyRegistrarExtensions.cs" />
+    <Compile Include="Infrastructure\EfStartUpTaskBase.cs" />
+    <Compile Include="Infrastructure\EngineContext.cs" />
+    <Compile Include="Infrastructure\Config\IAppConfig.cs" />
+    <Compile Include="DependencyRegistrar\IDependencyRegistrar.cs" />
+    <Compile Include="Infrastructure\IEngine.cs" />
+    <Compile Include="Infrastructure\IStartupTask.cs" />
+    <Compile Include="Infrastructure\ITypeFinder.cs" />
+    <Compile Include="Json\Converters\ResponseConverter.cs" />
+    <Compile Include="Json\Converters\ResponseTResultConverter.cs" />
+    <Compile Include="Json\JsonResponseResult.cs" />
+    <Compile Include="Json\Projections\ListProjection.cs" />
+    <Compile Include="Json\Projections\ObjectProjection.cs" />
+    <Compile Include="Json\Projections\Projection.cs" />
+    <Compile Include="Json\ResponseConverter.cs" />
+    <Compile Include="_System\Net\KeyedResponse.cs" />
+    <Compile Include="_System\Net\Response.cs" />
+    <Compile Include="Services\Logging\Loggers\CompositeLogger.cs" />
+    <Compile Include="Services\Logging\Loggers\ConsoleLogger.cs" />
+    <Compile Include="Services\Logging\Loggers\DatabaseLogger.cs" />
+    <Compile Include="Services\Logging\ILogEntityService.cs" />
+    <Compile Include="Services\Logging\Filters\IFilter.cs" />
+    <Compile Include="Services\Logging\LogBuffers\LogBuffer.cs" />
+    <Compile Include="Services\Logging\LogBuffers\TextLogBuffer.cs" />
+    <Compile Include="Services\Logging\Extensions\LoggerExtensions.cs" />
+    <Compile Include="Services\Logging\LogBuffers\ILogBuffer.cs" />
+    <Compile Include="_System\Net\IResponse.cs" />
+    <Compile Include="Services\Logging\LogWriters\LogWriter.cs" />
+    <Compile Include="Services\Logging\LogWriters\TaskLogWriter.cs" />
+    <Compile Include="Services\Emails\EmailSender.cs" />
+    <Compile Include="Services\Emails\IEmailSender.cs" />
+    <Compile Include="Services\Emails\IQueuedEmailService.cs" />
+    <Compile Include="Services\Emails\QueuedEmailService.cs" />
+    <Compile Include="Services\Logging\Extensions\TaskLogWriterExtensions.cs" />
+    <Compile Include="Services\Logging\Filters\DuplicateFilter.cs" />
+    <Compile Include="Services\Logging\Loggers\TextLogger.cs" />
+    <Compile Include="Services\Tasks\AppTasks\QueuedMessagesSendTask.cs" />
+    <Compile Include="Services\Installation\IInstallationService.cs" />
+    <Compile Include="Services\Logging\Loggers\BaseLogger.cs" />
+    <Compile Include="Services\Logging\Loggers\FileLogger.cs" />
+    <Compile Include="Services\Logging\ILogger.cs" />
+    <Compile Include="Services\Tasks\AppTasks\TaskBase.cs" />
+    <Compile Include="Services\Tasks\AppTasks\VpnConnectionTask.cs" />
+    <Compile Include="Services\Tasks\TaskThreadItem.cs" />
+    <Compile Include="Services\Tasks\TaskManager.cs" />
+    <Compile Include="Extensions\DateExtensions.cs" />
+    <Compile Include="_System\Debug\WatchLogger.cs" />
+    <Compile Include="Services\Tasks\IScheduleTaskService.cs" />
+    <Compile Include="Services\Tasks\ITask.cs" />
+    <Compile Include="Services\Tasks\TaskThread.cs" />
+    <Compile Include="Utils\CommonHelper.cs" />
+    <Compile Include="_System\Debug\DebugUtil.cs" />
+    <Compile Include="_System\Debug\IQuickWatch.cs" />
+    <Compile Include="_System\Debug\PerformanceHelper.cs" />
+    <Compile Include="Utils\NonceHelper.cs" />
+    <Compile Include="_System\Threading\NoSynchronizationContextScope.cs" />
+    <Compile Include="Utils\RequestData.cs" />
+    <Compile Include="_System\Singleton.cs" />
+    <Compile Include="_System\ComponentModel\SortableBindingList.cs" />
+    <Compile Include="_System\UnixEpoch.cs" />
+    <Compile Include="_System\Net\VPNManager.cs" />
+    <Compile Include="Utils\XmlHelper.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AVS.CoreLib.Data\AVS.CoreLib.Data.csproj">
+      <Project>{60238d9b-d672-4901-80ad-837a29699d48}</Project>
+      <Name>AVS.CoreLib.Data</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
