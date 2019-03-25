@@ -84,6 +84,7 @@
     <Compile Include="EF\EfRepository.cs" />
     <Compile Include="EF\InMemoryDbContext.cs" />
     <Compile Include="EF\InMemoryDbSet.cs" />
+    <Compile Include="EF\SqlBulkCopyException.cs" />
     <Compile Include="EF\TypeConfigurationsLoader.cs" />
     <Compile Include="Events\EntityBulkInsert.cs" />
     <Compile Include="Events\EventPublisher.cs" />

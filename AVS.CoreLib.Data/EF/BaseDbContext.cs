@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Configuration;
@@ -274,26 +275,36 @@ namespace AVS.CoreLib.Data.EF
                 
                 bcp.DestinationTableName = $"{this.GetTableName<TEntity>()}";//typeof(TEntity).Name
 
-                foreach (var prop in reader.Properties)
+                try
                 {
-                    if (!prop.CanRead || !prop.CanWrite)
-                        continue;
 
-                    var type = prop.PropertyType;
-                    var flag = type.IsPrimitive || type == typeof(string) || type == typeof(DateTime)
-                        || type == typeof(decimal)
-                        || type.IsEnum;
+                    foreach (var prop in reader.Properties)
+                    {
+                        if (!prop.CanRead || !prop.CanWrite)
+                            continue;
 
-                    if (!flag)
-                        continue;
+                        var type = prop.PropertyType;
+                        var flag = type.IsPrimitive || type == typeof(string) || type == typeof(DateTime)
+                                   || type == typeof(decimal)
+                                   || type.IsEnum;
 
-                    if (prop.CustomAttributes.Any(a=>a.AttributeType == typeof(NotMappedAttribute)))
-                        continue;
+                        if (!flag)
+                            continue;
 
-                    bcp.ColumnMappings.Add(prop.Name, prop.Name);
+                        if (prop.CustomAttributes.Any(a => a.AttributeType == typeof(NotMappedAttribute)))
+                            continue;
+
+                        bcp.ColumnMappings.Add(prop.Name, prop.Name);
+                    }
+
+
+                    bcp.WriteToServer(reader);
                 }
-
-                bcp.WriteToServer(reader);
+                catch (InvalidOperationException ex)
+                {
+                    //The given ColumnMapping does not match up with any column in the source or destination.
+                    throw new SqlBulkCopyException(ex.Message, bcp.ColumnMappings);
+                }
             }
         }
 

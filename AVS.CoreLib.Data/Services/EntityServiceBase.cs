@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using AVS.CoreLib.Data.EF;
 using AVS.CoreLib.Data.Events;
 
 namespace AVS.CoreLib.Data.Services
@@ -143,24 +144,35 @@ namespace AVS.CoreLib.Data.Services
         public virtual void BulkInsert(IEnumerable<TEntity> entities, int batchSize =0)
         {
             var arr = entities.ToArray();
-            if (batchSize == 0)
-                Repository.BulkInsert(arr);
-            else
+            try
             {
-                var items = new List<TEntity>(batchSize+10);
-                foreach (var item in arr)
+                if (batchSize == 0)
+                    Repository.BulkInsert(arr);
+                else
                 {
-                    items.Add(item);
-                    if (items.Count == batchSize)
+                    var items = new List<TEntity>(batchSize + 10);
+                    foreach (var item in arr)
                     {
-                        Repository.BulkInsert(items);
-                        items.Clear();
+                        items.Add(item);
+                        if (items.Count == batchSize)
+                        {
+                            Repository.BulkInsert(items);
+                            items.Clear();
+                        }
                     }
+
+                    if (items.Count > 0)
+                        Repository.BulkInsert(items);
                 }
-                if(items.Count>0)
-                    Repository.BulkInsert(items);
+
+                EventPublisher.EntityBulkInsert(arr);
             }
-            EventPublisher.EntityBulkInsert(arr);
+            catch (SqlBulkCopyException ex)
+            {
+                throw ex;
+                //this is for debug purposes try to insert single entity to get more information about column mapping issue
+                Insert(arr.First());
+            }
         }
 
         public virtual void Update(TEntity entity)
