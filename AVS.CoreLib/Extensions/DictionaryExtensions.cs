@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 
@@ -9,6 +10,11 @@ namespace AVS.CoreLib.Extensions
         [DebuggerStepThrough]
         public static string ToHttpPostString(this IDictionary<string, object> dictionary)
         {
+            if(dictionary == null)
+                throw new ArgumentNullException(nameof(dictionary));
+            if (dictionary.Count == 0)
+                return string.Empty;
+
             var output = string.Empty;
             foreach (var entry in dictionary)
             {
@@ -28,6 +34,11 @@ namespace AVS.CoreLib.Extensions
         [DebuggerStepThrough]
         public static string ToHttpPostString(this IDictionary<string, string> dictionary)
         {
+            if (dictionary == null)
+                throw new ArgumentNullException(nameof(dictionary));
+            if (dictionary.Count == 0)
+                return string.Empty;
+
             var output = string.Empty;
             foreach (var entry in dictionary)
             {
