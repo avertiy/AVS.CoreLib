@@ -124,7 +124,12 @@
     <Compile Include="Json\Projections\ObjectProjection.cs" />
     <Compile Include="Json\Projections\Projection.cs" />
     <Compile Include="Json\ResponseConverter.cs" />
+    <Compile Include="Utils\Bootstrap.cs" />
+    <Compile Include="Utils\ConsoleExt.cs" />
     <Compile Include="_System\Net\KeyedResponse.cs" />
+    <Compile Include="_System\Net\Proxy\IProxyServerAddress.cs" />
+    <Compile Include="_System\Net\Proxy\ProxyHelper.cs" />
+    <Compile Include="_System\Net\Proxy\ProxyServerAutoResolver.cs" />
     <Compile Include="_System\Net\Response.cs" />
     <Compile Include="Services\Logging\Loggers\CompositeLogger.cs" />
     <Compile Include="Services\Logging\Loggers\ConsoleLogger.cs" />
@@ -164,6 +169,7 @@
     <Compile Include="_System\Debug\IQuickWatch.cs" />
     <Compile Include="_System\Debug\PerformanceHelper.cs" />
     <Compile Include="Utils\NonceHelper.cs" />
+    <Compile Include="_System\Net\TcpUtil.cs" />
     <Compile Include="_System\Threading\NoSynchronizationContextScope.cs" />
     <Compile Include="Utils\RequestData.cs" />
     <Compile Include="_System\Singleton.cs" />

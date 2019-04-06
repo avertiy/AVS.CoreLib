@@ -16,7 +16,7 @@ namespace AVS.CoreLib.ClientApi
     public abstract class BaseWebClient
     {
         /// <summary>
-        /// //Proxy = ProxyHelper.GetWebProxy();
+        /// Proxy = ProxyHelper.GetWebProxy();
         /// </summary>
         public IWebProxy Proxy { get; set; }
         

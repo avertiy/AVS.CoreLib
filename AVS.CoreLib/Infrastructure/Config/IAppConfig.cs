@@ -71,10 +71,10 @@ namespace AVS.CoreLib.Infrastructure.Config
             public string TestAddress { get; protected internal set; }
             public VpnNode(XmlNode node)
             {
-                Name = GetString(node, "name");
-                Username = GetString(node, "username");
-                Password = GetString(node, "password");
-                TestAddress = GetString(node, "testAddress");
+                Name = GetString(node, "name", true);
+                Username = GetString(node, "username", true);
+                Password = GetString(node, "password", true);
+                TestAddress = GetString(node, "testAddress", true);
             }
         }
 

@@ -1,15 +1,19 @@
 using System;
+using System.Configuration;
 using System.Xml;
 
 namespace AVS.CoreLib.Infrastructure.Config
 {
     public abstract class XmlConfigNodeBase
     {
-        protected string GetString(XmlNode node, string attrName)
+        protected string GetString(XmlNode node, string attrName, bool required = false)
         {
-            return SetByXElement<string>(node, attrName, Convert.ToString);
+            var value = SetByXElement<string>(node, attrName, Convert.ToString);
+            if(string.IsNullOrEmpty(value) && required)
+                throw new ConfigurationErrorsException($"{attrName} is required", node);
+            return value;
         }
-
+        
         protected bool GetBool(XmlNode node, string attrName)
         {
             return SetByXElement<bool>(node, attrName, Convert.ToBoolean);
