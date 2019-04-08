@@ -14,6 +14,20 @@ using AVS.CoreLib._System.Net.Proxy;
 
 namespace AVS.CoreLib.Utils
 {
+    /// <summary>
+    /// usage example: 
+    /// Bootstrap.Run(b =>
+    ///  {
+    ///      b.AddWebApiHost("Poloniex API", "https://poloniex.com/public?command=returnTicker");
+    ///      //b.AddWebApiHost("Exmo API", "https://api.exmo.com/v1/ticker/");
+    ///      b.TestWebApiHosts(false);
+    ///      b.SetupCulture("en");
+    ///      b.InitConfig<MyAppConfig>();
+    ///      b.InitializeEngineContext(false);
+    ///      b.InstallScheduledTasks(args.Length > 0 && args[0] == "-clear", true);
+    ///      b.StartTaskManager();
+    ///  });
+    /// </summary>
     public class Bootstrap
     {
         private Bootstrap() { }
@@ -52,6 +66,7 @@ namespace AVS.CoreLib.Utils
         {
             //startup tasks are executed here, incl. DbContext initialization (EfStartupTask)
             EngineContext.Initialize(forceRecreate, _config);
+            _engineContextInitialized = true;
         }
 
         public void UseVpn()
