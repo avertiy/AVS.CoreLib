@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Configuration;
+using System.Linq;
 using System.Xml;
+using AVS.CoreLib.Utils;
 
 namespace AVS.CoreLib.Infrastructure.Config
 {
@@ -10,7 +13,7 @@ namespace AVS.CoreLib.Infrastructure.Config
         bool IgnoreAutoMapper { get; }
         bool NoDatabase { get; }
         AppConfig.AppInstanceNode AppInstance { get; }
-        AppConfig.TaskNode Tasks { get; }
+        AppConfig.TasksNode Tasks { get; }
         AppConfig.VpnNode Vpn { get; }
     }
 
@@ -27,7 +30,7 @@ namespace AVS.CoreLib.Infrastructure.Config
         public bool IgnoreAutoMapper { get; protected set; }
         public bool NoDatabase { get; protected set; }
         
-        public TaskNode Tasks { get; protected set; }
+        public TasksNode Tasks { get; protected set; }
         public VpnNode Vpn { get; protected set; }
         public AppInstanceNode AppInstance { get; protected set; }
 
@@ -57,7 +60,7 @@ namespace AVS.CoreLib.Infrastructure.Config
 
             var tasksNode = section.SelectSingleNode("Tasks");
             if(tasksNode!=null)
-                Tasks = new TaskNode(tasksNode);
+                Tasks = new TasksNode(tasksNode);
 
             var appInstanceNode = section.SelectSingleNode("AppInstance");
             AppInstance = new AppInstanceNode(appInstanceNode);
@@ -78,24 +81,67 @@ namespace AVS.CoreLib.Infrastructure.Config
             }
         }
 
-        public class TaskNode: XmlConfigNodeBase
+        public class TasksNode: XmlConfigNodeBase
         {
-            public string InstallForAppInstanceId { get; protected internal set; }
-            public bool Enabled { get; protected internal set; }
-            public bool Install { get; protected internal set; }
+            public string InstallForAppInstanceId { get; protected set; }
+            public bool Enabled { get; protected set; }
+            public bool Install { get; protected set; }
             public bool DetailedLogging { get; set; }
+
+            public List<TaskNode> Tasks { get; protected set; }
+
             /// <summary>
             /// system messages like start / stop time etc.
             /// </summary>
             public bool SystemLogging { get; set; }
 
-            public TaskNode(XmlNode node)
+            public TasksNode(XmlNode node)
             {
                 Enabled = GetBool(node, "enabled");
                 Install = GetBool(node, "install");
                 DetailedLogging = GetBool(node, "detailed-logging");
                 SystemLogging = GetBool(node, "system-logging");
                 InstallForAppInstanceId = GetString(node, "install-for");
+                
+                XmlNodeList nodes = node?.SelectNodes("Task");
+                if (nodes == null)
+                    return;
+                Tasks = new List<TaskNode>(nodes.Count);
+                foreach (XmlNode taskNode in nodes)
+                {
+                    Tasks.Add(new TaskNode(taskNode));
+                }
+            }
+
+            public TaskNode GetTaskByType(Type type)
+            {
+                return Tasks?.FirstOrDefault(t => t.Type == type.Name || t.Type == type.FullName);
+            }
+        }
+
+        public class TaskNode : XmlConfigNodeBase
+        {
+            public string Type { get; protected set; }
+            public string Name { get; protected set; }
+            public bool Enabled { get; protected set; }
+            public bool StopOnError { get; protected set; }
+            public int Seconds { get; protected set; }
+
+            /// <summary>
+            /// Task might have some argumetns to execute with
+            /// example args="-p1 abc -p2 123 -p3 abc/123"
+            /// </summary>
+            public string ArgsString { get; protected set; }
+
+            public Dictionary<string, string> Args => ArgsParser.Parse(ArgsString);
+
+            public TaskNode(XmlNode node)
+            {
+                Type = this.GetString(node, "type", true);
+                Name = this.GetString(node, "name");
+                ArgsString = this.GetString(node, "args");
+                Enabled = this.GetBool(node, "enabled");
+                StopOnError = this.GetBool(node, "stopOnError");
             }
         }
 
@@ -108,6 +154,5 @@ namespace AVS.CoreLib.Infrastructure.Config
                 Id = GetString(node, "id") ?? Environment.MachineName + ":" + System.AppDomain.CurrentDomain.FriendlyName;
             }
         }
-
     }
 }

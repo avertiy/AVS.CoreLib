@@ -6,7 +6,7 @@ using AVS.CoreLib._System.Net;
 
 namespace AVS.CoreLib.Services.Tasks.AppTasks
 {
-    public class VpnConnectionTask : ITask
+    public class VpnConnectionTask : TaskBase
     {
         public static ScheduleTask DefaultScheduleTask
         {
@@ -31,7 +31,7 @@ namespace AVS.CoreLib.Services.Tasks.AppTasks
         protected string Password;
         protected string TestAddress;
 
-        public VpnConnectionTask(IAppConfig appConfig)
+        public VpnConnectionTask(IAppConfig appConfig) : base(appConfig)
         {
             if (appConfig.Vpn != null)
             {
@@ -42,7 +42,7 @@ namespace AVS.CoreLib.Services.Tasks.AppTasks
             }
         }
 
-        public virtual void Execute(TaskLogWriter log)
+        public override void Execute(TaskLogWriter log)
         {
             if (!IsVpnRequired)
             {
