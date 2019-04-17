@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Xml;
-using AVS.CoreLib.Utils;
+using AVS.CoreLib.Services.Tasks.AppTasks;
 
 namespace AVS.CoreLib.Infrastructure.Config
 {
@@ -21,7 +21,7 @@ namespace AVS.CoreLib.Infrastructure.Config
     /// <summary>
     /// Configuratuion section handler 
     /// </summary>
-    public class AppConfig : XmlConfigNodeBase, IAppConfig
+    public partial class AppConfig : XmlConfigNodeBase, IAppConfig
     {
         /// <summary>
         /// Indicates whether we should ignore startup tasks
@@ -115,34 +115,13 @@ namespace AVS.CoreLib.Infrastructure.Config
 
             public TaskNode GetTaskByType(Type type)
             {
-                return Tasks?.FirstOrDefault(t => t.Type == type.Name || t.Type == type.FullName);
+                var task = Tasks.FirstOrDefault(t => t.Type == type.Name || t.Type == type.FullName);
+                if(task ==null)
+                    throw new ConfigurationErrorsException($"Missing Task configuration [ensure <Task type='{type.Name}'/> exists]");
+                return task;
             }
-        }
 
-        public class TaskNode : XmlConfigNodeBase
-        {
-            public string Type { get; protected set; }
-            public string Name { get; protected set; }
-            public bool Enabled { get; protected set; }
-            public bool StopOnError { get; protected set; }
-            public int Seconds { get; protected set; }
-
-            /// <summary>
-            /// Task might have some argumetns to execute with
-            /// example args="-p1 abc -p2 123 -p3 abc/123"
-            /// </summary>
-            public string ArgsString { get; protected set; }
-
-            public Dictionary<string, string> Args => ArgsParser.Parse(ArgsString);
-
-            public TaskNode(XmlNode node)
-            {
-                Type = this.GetString(node, "type", true);
-                Name = this.GetString(node, "name");
-                ArgsString = this.GetString(node, "args");
-                Enabled = this.GetBool(node, "enabled");
-                StopOnError = this.GetBool(node, "stopOnError");
-            }
+            public TaskNode this[Type type]=> GetTaskByType(type);
         }
 
         public class AppInstanceNode : XmlConfigNodeBase

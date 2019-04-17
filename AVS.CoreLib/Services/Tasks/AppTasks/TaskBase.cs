@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Text;
 using AVS.CoreLib.Data.Domain.Logging;
@@ -11,13 +12,21 @@ namespace AVS.CoreLib.Services.Tasks.AppTasks
 {
     public abstract partial class TaskBase : ITask
     {
-        protected readonly AppConfig.TaskNode Config;
+        public abstract void Execute(TaskLogWriter log);
+    }
 
-        protected TaskBase(IAppConfig config)
+    public abstract class ParameterizedTask<TParameters> : ITask 
+        where TParameters : class, ITaskParameters, new()
+    {
+        protected TParameters Parameters { get; set; }
+        protected IAppConfig AppConfig;
+        protected ParameterizedTask(IAppConfig config)
         {
-            Config = config.Tasks.GetTaskByType(this.GetType());
+            AppConfig = config;
+            var task = config.Tasks[GetType()];
+            Parameters = task.GetParameters<TParameters>();
         }
-        
+
         public abstract void Execute(TaskLogWriter log);
     }
 }

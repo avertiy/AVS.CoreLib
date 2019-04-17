@@ -10,6 +10,9 @@ namespace AVS.CoreLib.Utils
         public static Dictionary<string, string> Parse(string args)
         {
             var dict = new Dictionary<string, string>();
+            if (string.IsNullOrEmpty(args))
+                return dict;
+            
             var results = Regex.Matches(args, ARGS_REGEX, RegexOptions.Compiled);
             foreach (Match match in results)
             {

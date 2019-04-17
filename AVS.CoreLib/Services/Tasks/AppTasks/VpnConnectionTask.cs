@@ -31,7 +31,7 @@ namespace AVS.CoreLib.Services.Tasks.AppTasks
         protected string Password;
         protected string TestAddress;
 
-        public VpnConnectionTask(IAppConfig appConfig) : base(appConfig)
+        public VpnConnectionTask(IAppConfig appConfig) 
         {
             if (appConfig.Vpn != null)
             {

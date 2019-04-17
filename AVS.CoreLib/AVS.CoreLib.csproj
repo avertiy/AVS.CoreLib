@@ -93,6 +93,8 @@
     <Compile Include="ClientApi\Command.cs" />
     <Compile Include="ClientApi\WebClients\PrivateApiWebClient.cs" />
     <Compile Include="ClientApi\WebClients\PublicApiWebClient.cs" />
+    <Compile Include="Infrastructure\Config\ITaskParameters.cs" />
+    <Compile Include="Infrastructure\Config\TaskNode.cs" />
     <Compile Include="Json\Projections\DictionaryProjection.cs" />
     <Compile Include="Json\Projections\EnumerableProjection.cs" />
     <Compile Include="Json\JsonHelper.cs" />
