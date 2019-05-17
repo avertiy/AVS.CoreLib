@@ -11,7 +11,7 @@ namespace AVS.CoreLib.Data
 
         public override bool Equals(object obj)
         {
-            return Equals(obj as BaseEntity);
+            return Equals(obj as BaseEntity<T>);
         }
 
         protected static bool IsTransient(BaseEntity<T> obj)

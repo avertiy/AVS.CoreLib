@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Globalization;
-using System.Net;
+using System.ServiceProcess;
 using System.Threading;
+using AVS.CoreLib.ConsoleTools.Utils;
 using AVS.CoreLib.Infrastructure;
 using AVS.CoreLib.Infrastructure.Config;
 using AVS.CoreLib.Services.Installation;
@@ -12,14 +13,14 @@ using AVS.CoreLib.Services.Tasks.AppTasks;
 using AVS.CoreLib._System.Net;
 using AVS.CoreLib._System.Net.Proxy;
 
-namespace AVS.CoreLib.Utils
+namespace AVS.CoreLib.ConsoleTools.Bootstraping
 {
     /// <summary>
     /// usage example: 
     /// Bootstrap.Run(b =>
     ///  {
     ///      b.AddWebApiHost("Poloniex API", "https://poloniex.com/public?command=returnTicker");
-    ///      //b.AddWebApiHost("Exmo API", "https://api.exmo.com/v1/ticker/");
+    ///      b.AddWebApiHost("Exmo API", "https://api.exmo.com/v1/ticker/");
     ///      b.TestWebApiHosts(false);
     ///      b.SetupCulture("en");
     ///      b.InitConfig<MyAppConfig>();
@@ -30,8 +31,11 @@ namespace AVS.CoreLib.Utils
     /// </summary>
     public class Bootstrap
     {
-        private Bootstrap() { }
+        internal Bootstrap() { }
         private AppConfig _config;
+        private bool IsConsoleApp { get; set; }
+        private IBootstrapLogger Logger { get; set; }
+
         private bool _engineContextInitialized = false;
         private Dictionary<string, string> _webapihosts;
 
@@ -73,22 +77,22 @@ namespace AVS.CoreLib.Utils
         {
             VpnConnectionTask.IsVpnRequired = true;
 
-            Console.WriteLine($"Sending ping to {_config.Vpn.TestAddress}..");
+            WriteLine($"Sending ping to {_config.Vpn.TestAddress}..");
 
             if (!VpnUtil.TestConnection(_config.Vpn.TestAddress))
             {
-                ConsoleExt.ClearLine();
-                Console.WriteLine($"Establishing connection with {_config.Vpn.Name} VPN");
+                ClearLine();
+                WriteLine($"Establishing connection with {_config.Vpn.Name} VPN");
                 if (VpnUtil.Connect(_config.Vpn.Name, _config.Vpn.Username, _config.Vpn.Password))
                 {
-                    ConsoleExt.ClearLine();
-                    Console.WriteLine($"VPN {_config.Vpn.Name} is connected");
+                    ClearLine();
+                    WriteLine($"VPN {_config.Vpn.Name} is connected");
                 }
-                Console.WriteLine($"VPN {_config.Vpn.Name} connection failed");
+                WriteLine($"VPN {_config.Vpn.Name} connection failed");
             }
             else
             {
-                Console.WriteLine($"{_config.Vpn.Name} VPN connection is OK");
+                WriteLine($"{_config.Vpn.Name} VPN connection is OK");
             }
         }
 
@@ -127,8 +131,8 @@ namespace AVS.CoreLib.Utils
         {
             TaskManager.Instance.Initialize();
             TaskManager.Instance.Start();
-            Console.WriteLine("Task Manager has been started.");
-            Console.WriteLine(TaskManager.Instance.ToString());
+            WriteLine("Task Manager has been started.");
+            WriteLine(TaskManager.Instance.ToString());
         }
 
         #region private methods
@@ -141,7 +145,7 @@ namespace AVS.CoreLib.Utils
                 try
                 {
                     var content = ProxyHelper.SendTestWebRequest(kp.Value, useProxy: false);
-                    Console.WriteLine($"{kp.Key} test request is OK");
+                    Logger.WriteLine($"{kp.Key} test request is OK");
                 }
                 catch (Exception ex)
                 {
@@ -150,27 +154,89 @@ namespace AVS.CoreLib.Utils
             }
         }
 
+        private void ClearLine()
+        {
+            Logger.ClearLine();
+        }
+
+        private void WriteLine(string text)
+        {
+            Logger.WriteLine(text);
+        }
+
         #endregion
 
-        public static void Run(Action<Bootstrap> configure)
+        internal static void Build(Action<Bootstrap> configuration, IBootstrapLogger logger)
         {
-            var bootstrap = new Bootstrap();
-            Console.ForegroundColor = ConsoleColor.DarkYellow;
-            Console.WriteLine("Starting application..");
+            Bootstrap bootstrap = new Bootstrap()
+            {
+                IsConsoleApp = Environment.UserInteractive,
+                Logger = logger
+            };
+            
+
             VpnConnectionTask.IsVpnRequired = false;
+            configuration(bootstrap);
+        }
+
+        public static void Run(string serviceName, Action<BootstrapAsService> configuration)
+        {
+            if (Environment.UserInteractive)
+            {
+                var x = new BootstrapAsService();
+                configuration(x);
+            }
+            else
+            {
+                // running as service
+                using (var service = new WindowsService(serviceName, configuration))
+                {
+                    ServiceBase.Run(service);
+                }
+            }
+        }
+
+        public static void Run(Action<Bootstrap> configuration)
+        {
+            ConsoleExt.SetDefaultColor();
+            Console.WriteLine("Starting application..");
             try
             {
-                configure(bootstrap);
+                Bootstrap.Build(configuration, new ConsoleWriter());
             }
             catch (Exception ex)
             {
                 Console.WriteLine("Program unable to start");
                 ConsoleExt.WriteException(ex, stackTrace: true);
             }
-
-            Console.ForegroundColor = ConsoleColor.Gray;
+            ConsoleExt.SetGrayColor();
             Console.WriteLine("Press enter to quit.");
             Console.ReadLine();
         }
+
+        private static void Test()
+        {
+            Bootstrap.Run("myService", 
+                x => x.OnStart(b =>
+                    {
+                        b.AddWebApiHost("Poloniex API", "https://poloniex.com/public?command=returnTicker");
+                        b.AddWebApiHost("Exmo API", "https://api.exmo.com/v1/ticker/");
+                        b.TestWebApiHosts(false);
+                        b.SetupCulture("en");
+                        //b.InitConfig<MyAppConfig>();
+                        b.InitializeEngineContext(false);
+                        //b.InstallScheduledTasks(args.Length > 0 && args[0] == "-clear", true);
+                        b.StartTaskManager();
+                    }
+                ).OnStop(null));
+            Bootstrap.Run(b => b.InitializeEngineContext());
+        }
     }
+
+
+    
+
+    
+
+    
 }

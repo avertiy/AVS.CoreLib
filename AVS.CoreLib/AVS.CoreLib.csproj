@@ -127,8 +127,6 @@
     <Compile Include="Json\Projections\Projection.cs" />
     <Compile Include="Json\ResponseConverter.cs" />
     <Compile Include="Utils\ArgsParser.cs" />
-    <Compile Include="Utils\Bootstrap.cs" />
-    <Compile Include="Utils\ConsoleExt.cs" />
     <Compile Include="_System\Net\KeyedResponse.cs" />
     <Compile Include="_System\Net\Proxy\IProxyServerAddress.cs" />
     <Compile Include="_System\Net\Proxy\ProxyHelper.cs" />
