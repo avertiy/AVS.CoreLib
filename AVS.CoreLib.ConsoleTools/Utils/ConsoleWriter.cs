@@ -66,6 +66,11 @@ namespace AVS.CoreLib.ConsoleTools.Utils
             Console.WriteLine(string.Format(FormatProvider, format, args));
         }
 
+        public void WriteException(Exception ex, bool stackTrace)
+        {
+            ConsoleExt.WriteException(ex,stackTrace);
+        }
+
         public void WriteLine(FormattableString formattable, ConsoleColor color)
         {
             var bakup = Console.ForegroundColor;

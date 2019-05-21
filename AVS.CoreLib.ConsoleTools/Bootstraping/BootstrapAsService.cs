@@ -6,9 +6,14 @@ namespace AVS.CoreLib.ConsoleTools.Bootstraping
     public class BootstrapAsService
     {
         internal Action StopCallback;
+        /// <summary>
+        /// Logger prints (console or text file or whatever) log messages when program/service is starting
+        /// </summary>
+        public IBootstrapLogger Logger { get; set; } = new BootstrapLogger();
+
         public BootstrapAsService OnStart(Action<Bootstrap> configuration)
         {
-            Bootstrap.Build(configuration, new BootstrapLogger());
+            Bootstrap.Build(configuration, Logger);
             return this;
         }
 

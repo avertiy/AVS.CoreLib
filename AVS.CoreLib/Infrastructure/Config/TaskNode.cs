@@ -31,7 +31,7 @@ namespace AVS.CoreLib.Infrastructure.Config
         {
             Type = this.GetString(node, "type", true);
             Name = this.GetString(node, "name");
-            ParametersString = this.GetString(node, "args");
+            ParametersString = this.GetString(node, "args")?? this.GetString(node, "parameters");
             Enabled = this.GetBool(node, "enabled");
             StopOnError = this.GetBool(node, "stopOnError");
             Seconds = this.GetInt(node, "seconds");

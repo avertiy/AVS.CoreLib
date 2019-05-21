@@ -34,7 +34,7 @@ namespace AVS.CoreLib.ConsoleTools.Bootstraping
         internal Bootstrap() { }
         private AppConfig _config;
         private bool IsConsoleApp { get; set; }
-        private IBootstrapLogger Logger { get; set; }
+        public IBootstrapLogger Logger { get; set; }
 
         private bool _engineContextInitialized = false;
         private Dictionary<string, string> _webapihosts;
@@ -46,14 +46,19 @@ namespace AVS.CoreLib.ConsoleTools.Bootstraping
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("en");
         }
 
-        public void InitConfig<T>() where T : AppConfig
+        public T InitConfig<T>(Action<T, IBootstrapLogger> validateConfig = null) where T : AppConfig
         {
-            _config = (T)ConfigurationManager.GetSection("AppConfig");
+            _config = (AppConfig)ConfigurationManager.GetSection("AppConfig");
 
             if (_config == null)
             {
                 throw new ApplicationException("Application config is missing");
             }
+
+            var tconfig = (T) _config;
+            validateConfig?.Invoke(tconfig, Logger);
+            Logger.WriteLine($"{tconfig.AppInstance.Id} config initialized");
+            return tconfig;
         }
 
         public void InstallScheduledTasks(bool clearData = false, bool reinitialize = true)
@@ -135,6 +140,8 @@ namespace AVS.CoreLib.ConsoleTools.Bootstraping
             WriteLine(TaskManager.Instance.ToString());
         }
 
+        
+
         #region private methods
 
         private void SendTestRequests()
@@ -173,18 +180,31 @@ namespace AVS.CoreLib.ConsoleTools.Bootstraping
                 IsConsoleApp = Environment.UserInteractive,
                 Logger = logger
             };
-            
-
             VpnConnectionTask.IsVpnRequired = false;
-            configuration(bootstrap);
+            try
+            {
+                configuration(bootstrap);
+            }
+            catch (Exception ex)
+            {
+                logger.WriteLine("Bootstrap.Build failed");
+                logger.WriteException(ex, stackTrace: true);
+            }
         }
 
         public static void Run(string serviceName, Action<BootstrapAsService> configuration)
         {
             if (Environment.UserInteractive)
             {
+                ConsoleExt.SetDefaultColor();
+                Console.WriteLine("Starting application..");
+
                 var x = new BootstrapAsService();
                 configuration(x);
+
+                ConsoleExt.SetGrayColor();
+                Console.WriteLine("Press enter to quit.");
+                Console.ReadLine();
             }
             else
             {
@@ -200,15 +220,8 @@ namespace AVS.CoreLib.ConsoleTools.Bootstraping
         {
             ConsoleExt.SetDefaultColor();
             Console.WriteLine("Starting application..");
-            try
-            {
-                Bootstrap.Build(configuration, new ConsoleWriter());
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("Program unable to start");
-                ConsoleExt.WriteException(ex, stackTrace: true);
-            }
+            Bootstrap.Build(configuration, new ConsoleWriter());
+            
             ConsoleExt.SetGrayColor();
             Console.WriteLine("Press enter to quit.");
             Console.ReadLine();

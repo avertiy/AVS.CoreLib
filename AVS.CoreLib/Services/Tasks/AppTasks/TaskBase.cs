@@ -15,6 +15,13 @@ namespace AVS.CoreLib.Services.Tasks.AppTasks
         public abstract void Execute(TaskLogWriter log);
     }
 
+
+    /// <summary>
+    /// Parameterized task is a task that has a corresponding task node in AppConfig with an attribute args|parameters
+    /// e.g. 
+    /// <Task type="MyTask" args="-param1 value -param2 value2" enabled="true" stopOnError="true" seconds="60" ></Task>
+    /// ="-x Poloniex -pair BTC_MAID"
+    /// </summary>
     public abstract class ParameterizedTask<TParameters> : ITask 
         where TParameters : class, ITaskParameters, new()
     {
