@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using AVS.CoreLib.ClientApi.WebClients;
 using AVS.CoreLib.Json;
 using AVS.CoreLib.Utils;
 
@@ -39,7 +40,8 @@ namespace AVS.CoreLib.ClientApi
 
         public JsonResponseResult Execute(RequestData postData)
         {
-            var jsonText = Client.GetResponse(CreateRequest(postData));
+            var request = CreateRequest(postData);
+            var jsonText = Client.GetResponse(request);
             return new JsonResponseResult(jsonText);
         }
         

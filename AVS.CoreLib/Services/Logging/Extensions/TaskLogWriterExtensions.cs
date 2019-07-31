@@ -1,28 +1,11 @@
 using System;
+using AVS.CoreLib.Extensions;
 using AVS.CoreLib.Services.Logging.LogWriters;
 
 namespace AVS.CoreLib.Services.Logging.Extensions
 {
-    //log.GetResponse(()=>{... return response},"some message")
-    //wrapper.Call(()=>{.. return response},"")
-
     public static class TaskLogWriterExtensions
     {
-        //public static bool Execute(this TaskLogWriter log, Func<IResponse> func, string message)
-        //{
-        //    var start = DateTime.Now;
-        //    var response = func();
-        //    if (response.HasError)
-        //    {
-        //        log.Write(message,LogLevel.INFO_FAIL,);
-        //        return false;
-        //    }
-
-        //    var ts = DateTime.Now - start;
-        //    log.Write(measureTime ? $"{message} {ts.TotalMilliseconds:0.00}ms OK" : $"{message} OK");
-        //}
-
-
         public static void Run(this TaskLogWriter log, string message, Action<TaskLogWriter> action, bool measureTime = false)
         {
             try
@@ -108,4 +91,6 @@ namespace AVS.CoreLib.Services.Logging.Extensions
             return res;
         }
     }
+
+    
 }

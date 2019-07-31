@@ -1,4 +1,5 @@
 using System;
+using AVS.CoreLib.Data.Domain.Logging;
 
 namespace AVS.CoreLib.Services.Logging.Extensions
 {
@@ -42,6 +43,11 @@ namespace AVS.CoreLib.Services.Logging.Extensions
         public static void Error<T>(this ILogger logger, string message, Exception exception)
         {
             logger.Error($"{typeof(T).Name} => {message}", exception);
+        }
+
+        public static bool IsDetailedLogging(this LogLevel lvl)
+        {
+            return lvl <= LogLevel.SYSTEM;
         }
     }
 }

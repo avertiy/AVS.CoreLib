@@ -1,6 +1,8 @@
 using System;
 using System.Diagnostics;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using AVS.CoreLib.Infrastructure;
 
 namespace AVS.CoreLib._System.Debug
@@ -66,6 +68,23 @@ namespace AVS.CoreLib._System.Debug
             }
             return log.ToString();
         }
-    }
 
+        #region Stopwatch
+
+        public static Stopwatch Stopwatch(Action action)
+        {
+            var watch = new Stopwatch();
+            watch.Execute(action);
+            return watch;
+        }
+
+        public static Stopwatch Stopwatch<T>(Func<T> action, out T result)
+        {
+            var watch = new Stopwatch();
+            result = watch.Execute(action);
+            return watch;
+        }
+
+        #endregion
+    }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using AVS.CoreLib.Infrastructure.Config;
 using AVS.CoreLib._System.Net;
 using Newtonsoft.Json;
@@ -15,6 +16,7 @@ namespace AVS.CoreLib.Services.Logging.LogWriters
         void Write(string message, IResponse response);
 
         void Write(LogLevel level, string message, object context);
+        void WriteF(FormattableString message);
 
         void WriteIf(bool condition, string message, string details = "");
 
@@ -49,6 +51,7 @@ namespace AVS.CoreLib.Services.Logging.LogWriters
     public class LogWriter : ILogWriter
     {
         protected readonly ILogger Logger;
+        public IFormatProvider FormatProvider { get; set; }
         public bool DetailedLogging { get; set; }
         public bool SystemLogging { get; set; }
         
@@ -60,9 +63,16 @@ namespace AVS.CoreLib.Services.Logging.LogWriters
                 DetailedLogging = config.Tasks.DetailedLogging;
                 SystemLogging = config.Tasks.SystemLogging;
             }
+            FormatProvider = CultureInfo.CurrentCulture;
         }
-        
+
         #region Public non virtual Write methods
+
+        public void WriteF(FormattableString message)
+        {
+            Write(LogLevel.INFO, message.ToString(FormatProvider), "");
+        }
+
         public void Write(string message, string details = "")
         {
             Write(LogLevel.INFO, message, details);

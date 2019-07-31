@@ -55,7 +55,22 @@ namespace AVS.CoreLib.Json
 
             return list;
         }
-        
+
+        public static IList<T> ParseList<T>(JObject jObject, Func<string, JToken, T> convertFunc)
+        {
+            var list = new List<T>();
+            if (!jObject.HasValues)
+                return list;
+
+            foreach (KeyValuePair<string, JToken> kp in jObject)
+            {
+                var item = convertFunc(kp.Key, kp.Value);
+                list.Add(item);
+            }
+
+            return list;
+        }
+
         public static IDictionary<TKey, TValue> ParseDictionary<TKey, TValue, TProjection>(JObject jObject, Action<TKey, TValue> action = null) 
             where TKey : class
         {
@@ -67,14 +82,7 @@ namespace AVS.CoreLib.Json
             var itemType = typeof(TProjection);
             var tValue = typeof(TValue);
             
-            var dt = DateTime.Now;
-
             var serializer = new JsonSerializer() { NullValueHandling = NullValueHandling.Ignore };
-
-            var ts = DateTime.Now - dt;
-
-            var ms = ts.TotalMilliseconds;
-            var ticks = ts.Ticks;
 
             if (tValue.IsAssignableFrom(itemType))
             {
@@ -120,6 +128,67 @@ namespace AVS.CoreLib.Json
             return dictionary;
         }
         
+        public static IDictionary<string, string> ParseDictionary(JObject jObject)
+        {
+            var dictionary = new Dictionary<string, string>(jObject.Count);
+
+            if (!jObject.HasValues)
+                return dictionary;
+
+            foreach (KeyValuePair<string, JToken> kp in jObject)
+            {
+                if (kp.Value.Type == JTokenType.String)
+                {
+                    var value = ((JValue) kp.Value).Value<string>();
+                    dictionary.Add(kp.Key, value);
+                }
+            }
+        
+            return dictionary;
+        }
+
+        public static IDictionary<TKey, TValue> ParseDictionary<TKey, TValue>(JObject jObject, 
+            Func<dynamic, TKey> keyFunc,
+            Func<dynamic, TValue> valFunc
+            )
+        {
+            var dictionary = new Dictionary<TKey, TValue>(jObject.Count);
+
+            if (!jObject.HasValues)
+                return dictionary;
+
+            foreach (KeyValuePair<string, JToken> kp in jObject)
+            {
+                if (kp.Value.Type == JTokenType.String)
+                {
+                    string value = ((JValue)kp.Value).Value<string>();
+                    dictionary.Add(keyFunc(kp.Key), valFunc(value));
+                }
+                else if (kp.Value.Type == JTokenType.Boolean)
+                {
+                    var value = ((JValue)kp.Value).Value<bool>();
+                    dictionary.Add(keyFunc(kp.Key), valFunc(value));
+                }
+                else if (kp.Value.Type == JTokenType.Integer)
+                {
+                    var value = ((JValue)kp.Value).Value<int>();
+                    dictionary.Add(keyFunc(kp.Key), valFunc(value));
+                }
+                else if (kp.Value.Type == JTokenType.Float)
+                {
+                    var value = ((JValue)kp.Value).Value<float>();
+                    dictionary.Add(keyFunc(kp.Key), valFunc(value));
+                }
+                else
+                {
+                    var obj = kp.Value.Value<object>();
+                    dictionary.Add(keyFunc(kp.Key), valFunc(obj));
+                }
+            }
+
+            return dictionary;
+        }
+
         private static T Parse<T>(JArray jArray, Type genericType, MethodInfo addMethod, Type itemType)
         {
             if (addMethod == null)

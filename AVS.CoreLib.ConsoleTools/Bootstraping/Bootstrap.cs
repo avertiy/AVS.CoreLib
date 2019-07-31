@@ -46,6 +46,11 @@ namespace AVS.CoreLib.ConsoleTools.Bootstraping
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("en");
         }
 
+        public void AddStartingAppMessage(string message)
+        {
+            Logger.WriteLine(message);
+        }
+
         public T InitConfig<T>(Action<T, IBootstrapLogger> validateConfig = null) where T : AppConfig
         {
             _config = (AppConfig)ConfigurationManager.GetSection("AppConfig");
@@ -134,7 +139,7 @@ namespace AVS.CoreLib.ConsoleTools.Bootstraping
 
         public void StartTaskManager()
         {
-            TaskManager.Instance.Initialize();
+            TaskManager.Instance.Initialize(this._config.AppInstance.Id);
             TaskManager.Instance.Start();
             WriteLine("Task Manager has been started.");
             WriteLine(TaskManager.Instance.ToString());
@@ -188,7 +193,7 @@ namespace AVS.CoreLib.ConsoleTools.Bootstraping
             catch (Exception ex)
             {
                 logger.WriteLine("Bootstrap.Build failed");
-                logger.WriteException(ex, stackTrace: true);
+                logger.WriteError(ex, stackTrace: true);
             }
         }
 
@@ -197,14 +202,11 @@ namespace AVS.CoreLib.ConsoleTools.Bootstraping
             if (Environment.UserInteractive)
             {
                 ConsoleExt.SetDefaultColor();
-                Console.WriteLine("Starting application..");
-
-                var x = new BootstrapAsService();
+                var x = new BootstrapAsService(){Logger = new ConsoleWriter()};
                 configuration(x);
 
                 ConsoleExt.SetGrayColor();
-                Console.WriteLine("Press enter to quit.");
-                Console.ReadLine();
+                ConsoleInput.WaitForInput();
             }
             else
             {
@@ -245,11 +247,4 @@ namespace AVS.CoreLib.ConsoleTools.Bootstraping
             Bootstrap.Run(b => b.InitializeEngineContext());
         }
     }
-
-
-    
-
-    
-
-    
 }

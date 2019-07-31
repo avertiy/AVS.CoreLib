@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using AVS.CoreLib.Data.Domain.Logging;
+using AVS.CoreLib.Utils;
 
 namespace AVS.CoreLib.Services.Logging.Loggers
 {
@@ -36,33 +37,39 @@ namespace AVS.CoreLib.Services.Logging.Loggers
             }
         }
 
+        protected virtual void PrintMessage(LogLevel level, string message)
+        {
+            Console.WriteLine($"{DateTime.Now:HH-mm:ss} {level}: {message}");
+        }
+
         protected override void WriteLog(LogLevel level, string message, string details)
         {
             var color = Console.ForegroundColor;
-            Console.ForegroundColor = GetColor(level);
-            Console.WriteLine($"{DateTime.Now:HH-mm:ss} {level}: {message}");
 
-            if (!string.IsNullOrEmpty(details))
+            using (var locker = ConsoleLocker.Create())
             {
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine($"{details}");
+                Console.ForegroundColor = GetColor(level);
+                PrintMessage(level, message);
+
+                if (!string.IsNullOrEmpty(details))
+                {
+                    Console.ForegroundColor = ConsoleColor.DarkGray;
+                    Console.WriteLine($"{details}");
+                }
+                Console.ForegroundColor = color;
             }
-
-            Console.ForegroundColor = color;
         }
-
-        protected object _lock = new object();
-
+        
         protected internal override void WriteMany(IEnumerable<Log> logs)
         {
-            lock (_lock)
+            using (var locker = ConsoleLocker.Create())
             {
                 var color = Console.ForegroundColor;
                 foreach (var log in logs)
                 {
-                    if(Level> log.LogLevel)
+                    if (Level > log.LogLevel)
                         continue;
-                    if(Filter!=null && !Filter.ShouldWrite(log.LogLevel, log.ShortMessage, log.FullMessage))
+                    if (Filter != null && !Filter.ShouldWrite(log.LogLevel, log.ShortMessage, log.FullMessage))
                         continue;
 
                     Console.ForegroundColor = GetColor(log.LogLevel);

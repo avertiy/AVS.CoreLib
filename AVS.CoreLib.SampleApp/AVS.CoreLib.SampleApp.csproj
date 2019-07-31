@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{087CBCA8-EEEE-4D51-AAC0-6AB42878D79E}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <RootNamespace>AVS.CoreLib.ConsoleTools</RootNamespace>
-    <AssemblyName>AVS.CoreLib.ConsoleTools</AssemblyName>
+    <ProjectGuid>{3C8FCA36-90F2-4E02-878B-BA84C83DE115}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>AVS.CoreLib.SampleApp</RootNamespace>
+    <AssemblyName>AVS.CoreLib.SampleApp</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -33,14 +33,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject />
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
-    <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -49,30 +44,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Bootstraping\Bootstrap.cs" />
-    <Compile Include="Bootstraping\BootstrapAsService.cs" />
-    <Compile Include="Commands\CommandHandler.cs" />
-    <Compile Include="Commands\HelpCommand.cs" />
-    <Compile Include="Commands\IConsoleCommand.cs" />
-    <Compile Include="Commands\QuitCommand.cs" />
-    <Compile Include="Utils\ConsoleFormattedString.cs" />
-    <Compile Include="Utils\ConsoleInput.cs" />
-    <Compile Include="Bootstraping\WindowsService.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Utils\ConsoleExt.cs" />
-    <Compile Include="Utils\ConsoleOut.cs" />
-    <Compile Include="Utils\ConsoleWriter.cs" />
-    <Compile Include="Bootstraping\IBootstrapLogger.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\AVS.CoreLib\AVS.CoreLib.csproj">
-      <Project>{6a539bb8-f9d2-4787-890c-d5cd7b259fcd}</Project>
-      <Name>AVS.CoreLib</Name>
+    <ProjectReference Include="..\AVS.CoreLib.ConsoleTools\AVS.CoreLib.ConsoleTools.csproj">
+      <Project>{087CBCA8-EEEE-4D51-AAC0-6AB42878D79E}</Project>
+      <Name>AVS.CoreLib.ConsoleTools</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

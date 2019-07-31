@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using AVS.CoreLib.ClientApi.WebClients;
 using AVS.CoreLib.Json;
 
 namespace AVS.CoreLib.ClientApi
@@ -61,6 +62,5 @@ namespace AVS.CoreLib.ClientApi
             var cmd = new Command(command, WebClient);
             return cmd.Execute<T>(parameters);
         }
-
     }
 }

@@ -8,14 +8,18 @@ namespace AVS.CoreLib.ConsoleTools.Bootstraping
     public interface IBootstrapLogger
     {
         void ClearLine();
+        void WriteLine(string message);
         void WriteLine(FormattableString formattable);
-        void WriteLine(string format, params object[] args);
-        void WriteException(Exception ex, bool stackTrace);
+        void WriteError(Exception ex, bool stackTrace);
     }
 
     public class BootstrapLogger : IBootstrapLogger
     {
         public void ClearLine()
+        {
+        }
+
+        public void WriteLine(string message)
         {
         }
 
@@ -27,7 +31,7 @@ namespace AVS.CoreLib.ConsoleTools.Bootstraping
         {
         }
 
-        public void WriteException(Exception ex, bool stackTrace)
+        public void WriteError(Exception ex, bool stackTrace)
         {
         }
     }

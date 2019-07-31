@@ -1,6 +1,8 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 using AVS.CoreLib.Extensions;
+using AVS.CoreLib.Utils;
+using AVS.CoreLib._System.Net.WebSockets;
 
 namespace AVS.CoreLib.ClientApi
 {
@@ -33,6 +35,16 @@ namespace AVS.CoreLib.ClientApi
         {
             byte[] postBytes = Encoding.GetBytes(message);
             return Encryptor.ComputeHash(postBytes).ToStringHex();
+        }
+    }
+
+    public static class AuthenticatorExtensions
+    {
+        public static void Sign(this Authenticator authenticator, PrivateChannelCommand cmd)
+        {
+            cmd.Payload = $"nonce={NonceHelper.GetNonce()}";
+            cmd.Key = authenticator.PublicKey;
+            cmd.Signature = authenticator.Sign(cmd.Payload);
         }
     }
 }

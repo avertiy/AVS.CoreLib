@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using AVS.CoreLib.Extensions;
-using AVS.CoreLib.Json;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
-namespace AVS.CoreLib.ClientApi
+namespace AVS.CoreLib.ClientApi.WebClients
 {
     public abstract class BaseWebClient
     {

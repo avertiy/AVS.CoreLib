@@ -1,12 +1,14 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Text;
 using AVS.CoreLib.Utils;
 
-namespace AVS.CoreLib.ClientApi
+namespace AVS.CoreLib.ClientApi.WebClients
 {
     public class PrivateApiWebClient: BaseWebClient, IWebClient
     {
         protected Authenticator Authenticator { get; set; }
+        public bool AddCommandArg { get; set; }
 
         public Encoding Encoding
         {
@@ -26,8 +28,9 @@ namespace AVS.CoreLib.ClientApi
 
         public HttpWebRequest CreateRequest(string command, RequestData data)
         {
-            data.Add("command", command);
             data.Add("nonce", NonceHelper.GetNonce());
+            if (AddCommandArg)
+                data.Add("command", command);
             return CreatePostRequest(GetUrl(command), data.ToHttpQueryString());
         }
         

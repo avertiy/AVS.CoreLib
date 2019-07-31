@@ -14,26 +14,45 @@ namespace AVS.CoreLib.Services.Tasks.AppTasks
     {
         public abstract void Execute(TaskLogWriter log);
     }
-
-
+    
     /// <summary>
     /// Parameterized task is a task that has a corresponding task node in AppConfig with an attribute args|parameters
     /// e.g. 
     /// <Task type="MyTask" args="-param1 value -param2 value2" enabled="true" stopOnError="true" seconds="60" ></Task>
     /// ="-x Poloniex -pair BTC_MAID"
     /// </summary>
-    public abstract class ParameterizedTask<TParameters> : ITask 
-        where TParameters : class, ITaskParameters, new()
+    public abstract class ParameterizedTask<TAppConfig, TParameters> : ITask 
+        where TAppConfig: class, IAppConfig
+        where TParameters : class, IDictionary<string, string>, new()
     {
         protected TParameters Parameters { get; set; }
-        protected IAppConfig AppConfig;
-        protected ParameterizedTask(IAppConfig config)
+        protected TAppConfig AppConfig;
+        protected TaskNode Config;
+        
+        protected ParameterizedTask(TAppConfig config)
         {
             AppConfig = config;
-            var task = config.Tasks[GetType()];
-            Parameters = task.GetParameters<TParameters>();
+            Config = config.Tasks[GetType()];
+            Parameters  = ArgsParser.Parse<TParameters>(Config.Parameters);
+        }
+        
+        public virtual void Execute(TaskLogWriter log)
+        {
+            BeforeExecute(log);
+            Execute(log, Parameters);
+            AfterExecute(log);
         }
 
-        public abstract void Execute(TaskLogWriter log);
+        public abstract void Execute(TaskLogWriter log, TParameters parameters);
+
+        public virtual void BeforeExecute(TaskLogWriter log)
+        {
+        }
+
+        public virtual void AfterExecute(TaskLogWriter log)
+        {
+        }
     }
+
+
 }

@@ -41,7 +41,9 @@ namespace AVS.CoreLib.Json
                     if (token.Type == JTokenType.Array)
                     {
                         var jArray = (JArray) token;
-                        response.Data = !jArray.HasValues ? new List<TValue>() : JsonHelper.ParseEnumerable<TValue>((JArray)token, typeof(TProjection));
+                        response.Data = !jArray.HasValues ? 
+                            new List<TValue>() : 
+                            JsonHelper.ParseEnumerable<TValue>((JArray)token, typeof(TProjection));
                         return response;
                     }
 

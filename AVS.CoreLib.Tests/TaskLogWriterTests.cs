@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using AVS.CoreLib.Infrastructure.Config;
 using AVS.CoreLib.Services.Logging;
 using AVS.CoreLib.Services.Logging.LogBuffers;
@@ -24,12 +25,18 @@ namespace AVS.CoreLib.Tests
             config = new AppConfig();
         }
 
+        TaskLogWriter CreateTaskLogWriter()
+        {
+            return new TaskLogWriter(buffer, logger, config, CultureInfo.CurrentCulture);
+        }
+
+
         [TestMethod]
         public void UseBufferTest()
         {
             //arrange
             var taskname = "testtask";
-            writer = new TaskLogWriter(buffer, logger, config);
+            writer = CreateTaskLogWriter();
 
             //act
             writer.StartTask(taskname);
@@ -46,7 +53,7 @@ namespace AVS.CoreLib.Tests
             //arrange
             var taskname = "testtask";
             var message = "message1";
-            writer = new TaskLogWriter(buffer, logger, config);
+            writer = CreateTaskLogWriter();
             writer.StartTask(taskname);
             writer.Write(message);
             writer.EndTask(taskname);
@@ -65,8 +72,7 @@ namespace AVS.CoreLib.Tests
         {
             //arrange
             var taskname = "testtask";
-            writer = new TaskLogWriter(buffer, logger, config);
-            
+            writer = CreateTaskLogWriter();
             //act
             writer.Write("message");
 

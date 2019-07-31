@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using AVS.CoreLib.Utils;
 
-namespace AVS.CoreLib.ClientApi
+namespace AVS.CoreLib.ClientApi.WebClients
 {
     public class PublicApiWebClient : BaseWebClient, IWebClient
     {

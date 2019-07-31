@@ -23,13 +23,19 @@ namespace AVS.CoreLib.Data.EF
         public TypeConfigurationsLoader ConfigurationsLoader { get; private set; }
         protected string ConnectionString2 { get; set; }
 
+        public bool LazyLoadingEnabled
+        {
+            get => ((IObjectContextAdapter) this).ObjectContext.ContextOptions.LazyLoadingEnabled;
+            set => ((IObjectContextAdapter)this).ObjectContext.ContextOptions.LazyLoadingEnabled = value;
+        }
+
         #region Ctor
 
         protected BaseDbContext(string nameOrConnectionString)
             : base(nameOrConnectionString)
         {
             ConfigurationsLoader = new TypeConfigurationsLoader();
-            //((IObjectContextAdapter) this).ObjectContext.ContextOptions.LazyLoadingEnabled = true;
+            
         }
 
 

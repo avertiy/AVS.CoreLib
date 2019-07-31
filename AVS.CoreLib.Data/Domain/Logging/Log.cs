@@ -43,7 +43,5 @@ namespace AVS.CoreLib.Data.Domain.Logging
         {
             return $"{LogLevel} {ShortMessage} {FullMessage}";
         }
-
-
     }
 }

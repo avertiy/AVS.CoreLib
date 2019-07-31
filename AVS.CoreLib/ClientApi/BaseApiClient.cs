@@ -1,4 +1,5 @@
-﻿using AVS.CoreLib.Json;
+﻿using AVS.CoreLib.ClientApi.WebClients;
+using AVS.CoreLib.Json;
 
 namespace AVS.CoreLib.ClientApi
 {

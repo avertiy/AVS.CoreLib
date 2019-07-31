@@ -41,17 +41,16 @@ namespace AVS.CoreLib.Services.Tasks
 
         #region Utilities
 
-        private static ITask ResolveTaskInstance(ILifetimeScope scope, string type)
+        private static ITask ResolveTaskInstance(ILifetimeScope scope, string typeStr)
         {
             ITask task = null;
-            var type2 = System.Type.GetType(type);
-            if (type2 != null)
+            Type type = System.Type.GetType(typeStr);
+            if (type != null)
             {
-                object instance;
-                if (!EngineContext.Current.ContainerManager.TryResolve(type2, scope, out instance))
+                if (!EngineContext.Current.ContainerManager.TryResolve(type, scope, out var instance))
                 {
                     //not resolved
-                    instance = EngineContext.Current.ContainerManager.ResolveUnregistered(type2, scope);
+                    instance = EngineContext.Current.ContainerManager.ResolveUnregistered(type, scope);
                 }
                 task = instance as ITask;
             }
@@ -123,13 +122,23 @@ namespace AVS.CoreLib.Services.Tasks
                 }
                 catch (Exception exc)
                 {
-                    this.Enabled = !this.StopOnError;
                     this.LastEndUtc = DateTime.UtcNow;
-                    logWriter.WriteError($"{scheduleTask.Name} unhandled error has occured", exc);
+
+                    if (this.StopOnError)
+                    {
+                        this.Enabled = false;
+                        logWriter.WriteWarning($"{scheduleTask.Name} has been stopped",exc.ToString());
+                    }
+                    else
+                    {
+                        logWriter.WriteError($"{scheduleTask.Name} unhandled error has occured", exc);
+                    }
+
                     if (throwException)
                     {
                         throw;
                     }
+
                 }
                 finally
                 {

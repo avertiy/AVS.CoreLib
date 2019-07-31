@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
+using Autofac;
 using AVS.CoreLib.Data.Domain.Tasks;
 using AVS.CoreLib.Infrastructure;
 using AVS.CoreLib.Infrastructure.Config;
+using AVS.CoreLib.Services.Logging.LogWriters;
 
 namespace AVS.CoreLib.Services.Tasks
 {
@@ -16,6 +18,43 @@ namespace AVS.CoreLib.Services.Tasks
     {
         private static TaskManager _taskManager = null;
         public static TaskManager Instance => _taskManager ?? (_taskManager = new TaskManager());
+
+        public static void ExecuteTask<T>() where T : class, ITask
+        {
+            using (ILifetimeScope scope = EngineContext.Current.ContainerManager.Scope())
+            {
+                var logWriter = EngineContext.Current.ContainerManager.Resolve<TaskLogWriter>("", scope);
+
+                //resolve task instance
+                T task = null;
+                Type type = typeof(T);
+                if (!EngineContext.Current.ContainerManager.TryResolve(type, scope, out object instance))
+                {
+                    //not resolved
+                    instance = EngineContext.Current.ContainerManager.ResolveUnregistered(type, scope);
+                }
+                task = (T)instance;
+
+                if (task == null)
+                    throw new Exception($"Unable to resolve task {type.Name} instance");
+
+                try
+                {
+                    //execute task
+                    logWriter.StartTask(type.Name);
+                    task.Execute(logWriter);
+                    logWriter.EndTask(type.Name);
+                }
+                catch (Exception ex)
+                {
+                    logWriter.WriteError($"{type.Name} unhandled error has occured", ex);
+                }
+
+                logWriter.Flush();
+            }
+
+
+        }
 
         private readonly List<TaskThread> _taskThreads = new List<TaskThread>();
         private int _notRunTasksInterval = 60 * 30; //30 minutes
@@ -29,10 +68,10 @@ namespace AVS.CoreLib.Services.Tasks
         /// Initializes the task manager with schedule tasks stored in database
         /// You might call in program start InstallScheduledTasks of IInstallationService 
         /// </summary>
-        public void Initialize()
+        public void Initialize(string applicationInstanceId)
         {
             var taskService = EngineContext.Current.Resolve<IScheduleTaskService>();
-            IList<ScheduleTask> scheduleTasks = taskService.GetAll();
+            IList<ScheduleTask> scheduleTasks = taskService.GetAll(t=>t.ApplicationInstanceId == applicationInstanceId);
 
             Initialize(scheduleTasks.ToArray());
         }
@@ -129,7 +168,7 @@ namespace AVS.CoreLib.Services.Tasks
                 return new ReadOnlyCollection<TaskThread>(this._taskThreads);
             }
         }
-
+        
         public override string ToString()
         {
             var sb = new StringBuilder();
@@ -138,15 +177,18 @@ namespace AVS.CoreLib.Services.Tasks
             {
                 var taskThread = _taskThreads[index];
                 sb.Append($"Run every {taskThread.Seconds} sec.:");
-                foreach (var group in taskThread.Tasks.GroupBy(t=>t.Group))
+                foreach (var group in taskThread.Tasks.GroupBy(t => t.Group))
                 {
                     sb.Append(!string.IsNullOrEmpty(@group.Key) ? $"\r\n\t{@group.Key}:" : $"\r\n\t");
                     foreach (var task in group)
                     {
-                        sb.Append($"\"{task.Name}\", ");
+                        if(task.Enabled)
+                            sb.Append($"\"{task.Name}\", ");
+                        else
+                            sb.Append($"\"{task.Name}\" [disabled], ");
                     }
                 }
-                sb.Length-=2;
+                sb.Length -= 2;
                 sb.AppendLine();
             }
             return sb.ToString();

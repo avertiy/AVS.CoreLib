@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>AVS.CoreLib</RootNamespace>
     <AssemblyName>AVS.CoreLib</AssemblyName>
-    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -22,6 +22,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <Prefer32Bit>false</Prefer32Bit>
+    <LangVersion>7.3</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -87,13 +88,12 @@
     <Compile Include="Caching\MemoryCacheManager.cs" />
     <Compile Include="Caching\NullCache.cs" />
     <Compile Include="ClientApi\WebClients\BaseWebClient.cs" />
-    <Compile Include="ClientApi\WebClients\Authenticator.cs" />
+    <Compile Include="ClientApi\Authenticator.cs" />
     <Compile Include="ClientApi\BaseApiClient.cs" />
     <Compile Include="ClientApi\WebClients\IWebClient.cs" />
     <Compile Include="ClientApi\Command.cs" />
     <Compile Include="ClientApi\WebClients\PrivateApiWebClient.cs" />
     <Compile Include="ClientApi\WebClients\PublicApiWebClient.cs" />
-    <Compile Include="Infrastructure\Config\ITaskParameters.cs" />
     <Compile Include="Infrastructure\Config\TaskNode.cs" />
     <Compile Include="Json\Projections\DictionaryProjection.cs" />
     <Compile Include="Json\Projections\EnumerableProjection.cs" />
@@ -126,7 +126,12 @@
     <Compile Include="Json\Projections\ObjectProjection.cs" />
     <Compile Include="Json\Projections\Projection.cs" />
     <Compile Include="Json\ResponseConverter.cs" />
+    <Compile Include="Extensions\ActionExtensions.cs" />
     <Compile Include="Utils\ArgsParser.cs" />
+    <Compile Include="Utils\GuardExtensions.cs" />
+    <Compile Include="Utils\ConsoleLocker.cs" />
+    <Compile Include="Utils\RawString.cs" />
+    <Compile Include="_System\Debug\StopwatchExtensions.cs" />
     <Compile Include="_System\Net\KeyedResponse.cs" />
     <Compile Include="_System\Net\Proxy\IProxyServerAddress.cs" />
     <Compile Include="_System\Net\Proxy\ProxyHelper.cs" />
@@ -171,6 +176,10 @@
     <Compile Include="_System\Debug\PerformanceHelper.cs" />
     <Compile Include="Utils\NonceHelper.cs" />
     <Compile Include="_System\Net\TcpUtil.cs" />
+    <Compile Include="_System\Net\WebSockets\CommandType.cs" />
+    <Compile Include="_System\Net\WebSockets\PrivateChannelCommand.cs" />
+    <Compile Include="_System\Net\WebSockets\PublicChannelCommand.cs" />
+    <Compile Include="_System\Net\WebSockets\WSChannelClient.cs" />
     <Compile Include="_System\Threading\NoSynchronizationContextScope.cs" />
     <Compile Include="Utils\RequestData.cs" />
     <Compile Include="_System\Singleton.cs" />

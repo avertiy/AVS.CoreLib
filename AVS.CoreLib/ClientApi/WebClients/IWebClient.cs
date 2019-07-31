@@ -1,12 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-using System.IO;
-using System.Net;
+﻿using System.Net;
 using System.Threading.Tasks;
-using AVS.CoreLib.Json;
 using AVS.CoreLib.Utils;
 
-namespace AVS.CoreLib.ClientApi
+namespace AVS.CoreLib.ClientApi.WebClients
 {
     public interface IWebClient
     {

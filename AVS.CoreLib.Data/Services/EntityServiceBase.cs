@@ -1,6 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Threading.Tasks;
 using AVS.CoreLib.Data.EF;
 using AVS.CoreLib.Data.Events;
 
@@ -52,6 +55,10 @@ namespace AVS.CoreLib.Data.Services
         IPagedList<TEntity> GetAll(int pageIndex, int pageSize, Func<IQueryable<TEntity>, IList<TEntity>> query);
         IPagedList<TEntity> GetAll<TKey>(int pageIndex, int pageSize, Func<TEntity, bool> predicate, Func<TEntity, TKey> orderBySelector);
         IPagedList<TEntity> GetAll<TKey>(int pageIndex, int pageSize, Func<TEntity, TKey> orderBySelector);
+
+        Task<List<TEntity>> GetAllAsync();
+        Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate);
+        Task<IList<TEntity>> GetAllAsync<TKey>(Expression<Func<TEntity, TKey>> orderBySelector);
     }
 
     public abstract class EntityServiceBase<TEntity> : IEntityServiceBase<TEntity>
@@ -67,35 +74,45 @@ namespace AVS.CoreLib.Data.Services
         }
 
 
+        protected int ExecuteSqlCommand(string command, bool injectTableName = true)
+        {
+            if(string.IsNullOrEmpty(command))
+                throw new ArgumentNullException(command);
+
+            if (!(Repository is IEfRepository<TEntity> efRep))
+                throw new NotImplementedException("ExecuteSqlCommand is not supported");
+
+            return efRep.ExecuteSqlCommand(command, injectTableName);
+        }
+
+        #region delete
         public virtual void Delete(TEntity entity)
         {
             if (entity == null)
             {
                 throw new ArgumentNullException("entity");
             }
-            
+
             Repository.Delete(entity);
             EventPublisher.EntityDeleted(entity);
         }
 
         public virtual int DeleteAll()
         {
-            var efRep = Repository as IEfRepository<TEntity>;
-            if(efRep == null)
+            if (!(Repository is IEfRepository<TEntity> efRep))
                 throw new NotImplementedException("DeleteAll is implemented only for IEfRepository");
-            
-            var table = efRep.Context.GetTableName<TEntity>();
 
-            var deletedRowCount = efRep.Context.ExecuteSqlCommand($"delete from {table}");
+            var table = efRep.TableName;
+
+            var deletedRowCount = efRep.ExecuteSqlCommand($"delete from {table}");
             return deletedRowCount;
         }
 
         public virtual int DeleteMany(IList<int> ids)
         {
-            var efRep = Repository as IEfRepository<TEntity>;
-            if (efRep == null)
+            if (!(Repository is IEfRepository<TEntity> efRep))
                 throw new NotImplementedException("DeleteMany is implemented only for IEfRepository");
-            var table = efRep.Context.GetTableName<TEntity>();
+            var table = efRep.TableName;
 
 
             if (ids.Count > 1500)
@@ -107,29 +124,31 @@ namespace AVS.CoreLib.Data.Services
                     currentList.Add(i);
                     if (currentList.Count == 1500)
                     {
-                        deletedCount+=DeleteMany(currentList);
+                        deletedCount += DeleteMany(currentList);
                         currentList.Clear();
                     }
                 }
 
-                if(currentList.Any())
+                if (currentList.Any())
                     deletedCount += DeleteMany(currentList);
 
                 return deletedCount;
             }
 
-            var query = $"DELETE FROM {table} WHERE Id IN({string.Join(",",ids)})";
-            var deletedRowCount = efRep.Context.ExecuteSqlCommand(query);
+            var query = $"DELETE FROM {table} WHERE Id IN({string.Join(",", ids)})";
+            var deletedRowCount = efRep.ExecuteSqlCommand(query);
             return deletedRowCount;
         }
+        #endregion
 
+        #region insert/update
         public virtual void Insert(TEntity entity)
         {
             if (entity == null)
             {
                 throw new ArgumentNullException("entity");
             }
-            
+
             Repository.Insert(entity);
             EventPublisher.EntityInserted(entity);
         }
@@ -141,7 +160,7 @@ namespace AVS.CoreLib.Data.Services
             EventPublisher.EntityBulkInsert(arr);
         }
 
-        public virtual void BulkInsert(IEnumerable<TEntity> entities, int batchSize =0)
+        public virtual void BulkInsert(IEnumerable<TEntity> entities, int batchSize = 0)
         {
             var arr = entities.ToArray();
             try
@@ -184,8 +203,45 @@ namespace AVS.CoreLib.Data.Services
             Repository.Update(entity);
             EventPublisher.EntityUpdated(entity);
         }
+        #endregion
 
-        public virtual TEntity FirstOrDefault(Func<TEntity,bool> predicate)
+        #region GetById, FirstOrDefault, Any
+        public virtual TEntity GetById(int entityId)
+        {
+            if (entityId == 0)
+            {
+                return null;
+            }
+
+            return Repository.GetById(entityId);
+        }
+
+        /// <summary>
+        /// Get items by identifiers
+        /// </summary>
+        /// <param name="ids">identifiers</param>
+        /// <returns>Countries</returns>
+        public virtual IList<TEntity> GetByIds(int[] ids)
+        {
+            if (ids == null || ids.Length == 0)
+                return new List<TEntity>();
+
+            var query = from c in Repository.Table
+                where ids.Contains(c.Id)
+                select c;
+            var list = query.ToList();
+            //sort by passed identifiers
+            var result = new List<TEntity>();
+            foreach (int id in ids)
+            {
+                var item = list.Find(x => x.Id == id);
+                if (item != null)
+                    result.Add(item);
+            }
+            return result;
+        }
+
+        public virtual TEntity FirstOrDefault(Func<TEntity, bool> predicate)
         {
             return Repository.Table.FirstOrDefault(predicate);
         }
@@ -209,17 +265,63 @@ namespace AVS.CoreLib.Data.Services
         {
             return Repository.Table.Any(predicate);
         }
+        #endregion
 
-        public virtual TEntity GetById(int entityId)
+        #region Async
+
+        /// <summary>
+        /// Get items by identifiers
+        /// </summary>
+        /// <param name="ids">identifiers</param>
+        /// <returns>Countries</returns>
+        public virtual async Task<IList<TEntity>> GetByIdsAsync(int[] ids)
         {
-            if (entityId == 0)
-            {
-                return null;
-            }
+            if (ids == null || ids.Length == 0)
+                return new List<TEntity>();
 
-            return Repository.GetById(entityId);
+            var query = from c in Repository.Table
+                where ids.Contains(c.Id)
+                select c;
+
+            var list = await query.ToListAsync();
+            //sort by passed identifiers
+            var result = new List<TEntity>();
+            foreach (int id in ids)
+            {
+                var item = list.Find(x => x.Id == id);
+                if (item != null)
+                    result.Add(item);
+            }
+            return result;
         }
 
+        public Task<List<TEntity>> GetAllAsync()
+        {
+            return Repository.Table.ToListAsync();
+        }
+
+        public async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate)
+        {
+            var query = Repository.Table.AsQueryable().Where(predicate);
+            try
+            {
+                List<TEntity> res = await query.ToListAsync();
+                return res;
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public async Task<IList<TEntity>> GetAllAsync<TKey>(Expression<Func<TEntity, TKey>> orderBySelector)
+        {
+            return await Repository.Table.OrderBy(orderBySelector).ToListAsync();
+        }
+
+        #endregion
+
+        #region GetAll
         public IList<TEntity> GetAll()
         {
             return Repository.Table.ToList();
@@ -252,39 +354,17 @@ namespace AVS.CoreLib.Data.Services
 
         public IPagedList<TEntity> GetAll(int pageIndex, int pageSize, Func<IQueryable<TEntity>, IList<TEntity>> query)
         {
-            var list = query(Repository.Table); 
+            var list = query(Repository.Table);
             return new PagedList<TEntity>(list, pageIndex, pageSize);
         }
 
         public IPagedList<TEntity> GetAll<TKey>(int pageIndex, int pageSize, Func<TEntity, TKey> orderBySelector)
         {
             return new PagedList<TEntity>(Repository.Table.OrderBy(orderBySelector).ToList(), pageIndex, pageSize);
-        }
+        } 
+        #endregion
 
 
-        /// <summary>
-        /// Get items by identifiers
-        /// </summary>
-        /// <param name="ids">identifiers</param>
-        /// <returns>Countries</returns>
-        public virtual IList<TEntity> GetByIds(int[] ids)
-        {
-            if (ids == null || ids.Length == 0)
-                return new List<TEntity>();
-
-            var query = from c in Repository.Table
-                where ids.Contains(c.Id)
-                select c;
-            var list = query.ToList();
-            //sort by passed identifiers
-            var result = new List<TEntity>();
-            foreach (int id in ids)
-            {
-                var item = list.Find(x => x.Id == id);
-                if (item != null)
-                    result.Add(item);
-            }
-            return result;
-        }
+        
     }
 }

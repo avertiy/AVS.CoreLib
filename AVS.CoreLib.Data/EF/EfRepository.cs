@@ -11,7 +11,8 @@ namespace AVS.CoreLib.Data
     public interface IEfRepository<T> : IRepository<T>
         where T : BaseEntity
     {
-        IDbContext Context { get; }
+        string TableName { get; }
+        int ExecuteSqlCommand(string command, bool injectTableName = true);
     }
 
     /// <summary>
@@ -58,6 +59,20 @@ namespace AVS.CoreLib.Data
         #endregion
 
         #region Methods
+
+        public int ExecuteSqlCommand(string command, bool injectTableName = true)
+        {
+            if (injectTableName)
+            {
+                var tableName = TableName;
+                command = command.Replace("$TABLE", tableName);
+            }
+
+            return this.Context.ExecuteSqlCommand(command);
+        }
+
+        public string TableName => this.Context.GetTableName<T>();
+        
 
         /// <summary>
         /// Get entity by identifier

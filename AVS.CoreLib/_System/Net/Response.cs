@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using AVS.CoreLib.Json.Converters;
+using AVS.CoreLib._System.Debug;
 using Newtonsoft.Json;
 
 namespace AVS.CoreLib._System.Net
@@ -40,6 +42,16 @@ namespace AVS.CoreLib._System.Net
         public static implicit operator T(Response<T> foo)
         {
             return foo.Data;
+        }
+    }
+
+    public class LoadDataException : Exception
+    {
+        public LoadDataException(Response response) : base($"{DebugUtil.GetCallerName()} failed: {response.Error}")
+        {
+        }
+        public LoadDataException(string arg, Response response) : base($"{DebugUtil.GetCallerName()} for {arg} failed: {response.Error}")
+        {
         }
     }
 }
