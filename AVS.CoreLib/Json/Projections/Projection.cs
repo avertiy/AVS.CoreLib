@@ -19,9 +19,8 @@ namespace AVS.CoreLib.Json
             if (token != null)
             {
                 response.Error = (token.Value<string>());
-                return true;
             }
-            return false;
+            return !string.IsNullOrEmpty(response.Error);
         }
 
     }

@@ -28,7 +28,7 @@ namespace AVS.CoreLib.Services.Tasks.AppTasks
         protected TParameters Parameters { get; set; }
         protected TAppConfig AppConfig;
         protected TaskNode Config;
-        
+
         protected ParameterizedTask(TAppConfig config)
         {
             AppConfig = config;

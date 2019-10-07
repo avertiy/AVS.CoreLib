@@ -37,5 +37,24 @@ namespace AVS.CoreLib.Extensions
             }
             return null;
         }
+
+        public static string ToStringNotation(this Type type)
+        {
+            if (!type.IsGenericType)
+                return type.Name;
+
+            var args = type.GetGenericArguments();
+            StringBuilder sb = new StringBuilder(type.Name);
+            sb.Append("<");
+            foreach (var typeArgument in args)
+            {
+                sb.Append(typeArgument.ToStringNotation());
+                sb.Append(",");
+            }
+
+            sb.Length--;
+            sb.Append(">");
+            return sb.ToString();
+        }
     }
 }

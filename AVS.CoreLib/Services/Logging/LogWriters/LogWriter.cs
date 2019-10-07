@@ -144,7 +144,10 @@ namespace AVS.CoreLib.Services.Logging.LogWriters
             if (context == null)
                 Write(level, message);
             else
-                Write(level, message, JsonConvert.SerializeObject(context));
+            {
+                var details = context == null ? "" : JsonConvert.SerializeObject(context);
+                Write(level, message, details);
+            }
         }
 
         public void WriteIf(bool condition, string message, string details = "")

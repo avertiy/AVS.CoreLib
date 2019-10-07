@@ -14,21 +14,27 @@ namespace AVS.CoreLib.ClientApi.WebClients
         /// Proxy = ProxyHelper.GetWebProxy();
         /// </summary>
         public IWebProxy Proxy { get; set; }
-        
-        public string BaseUrl { get; set; }
+
+        public string BaseAddress { get; set; }
+        public string ApiVersion { get; set; }
         public string RelativeUrl { get; set; }
 
         public string LastResponse { get; set; }
         
         public void Validate()
         {
-            if(string.IsNullOrEmpty(BaseUrl))
+            if(string.IsNullOrEmpty(BaseAddress))
                 throw new Exception($"BaseUrl is empty. Ensure {this.GetType().Name} has been properly setup.");
         }
 
         protected virtual string GetUrl(string command)
         {
-            return $"{BaseUrl}{RelativeUrl}{command}";
+            return $"{BaseAddress}{RelativeUrl}{command}";
+        }
+
+        protected string GetCommandUrl(string apiVersion, string command)
+        {
+            return $"{BaseAddress}{apiVersion ?? ApiVersion}{RelativeUrl}{command}";
         }
 
         protected virtual HttpWebRequest CreateHttpWebRequest(string method, string url)

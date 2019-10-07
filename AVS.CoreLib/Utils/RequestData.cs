@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Security.Policy;
 using AVS.CoreLib.Extensions;
 
 namespace AVS.CoreLib.Utils
@@ -10,18 +13,26 @@ namespace AVS.CoreLib.Utils
         void Add(string key, string value);
     }
 
-    public struct RequestData : IRequestData
+    public class RequestData : IRequestData
     {
-        private string _data;
+        private readonly List<string> _items = new List<string>();
+
+        public RequestData()
+        {
+        }
         
         public RequestData(string queryStringParameters)
         {
-            _data = queryStringParameters ?? string.Empty;
+            Add(queryStringParameters);
         }
-
+        
         public string ToHttpQueryString()
         {
-            return _data;
+            if(_items.Count == 0)
+                return String.Empty;
+            if (_items.Count == 1)
+                return _items[0];
+            return string.Join("&",_items.OrderBy(i=>i));
         }
 
         public static implicit operator RequestData(string str)
@@ -41,46 +52,46 @@ namespace AVS.CoreLib.Utils
 
         public static implicit operator RequestData(object[] parameters)
         {
-            var data =  new RequestData();
+            var data = new RequestData();
             data.Add(parameters);
             return data;
         }
 
         public void Add(string key, string value)
         {
-            _data = _data.Length > 0 ? $"{key}={value}&{_data}" : $"{key}={value}";
+            _items.Add($"{key}={value}");
+        }
+
+        public void Add(string queryStringParameters)
+        {
+            if (!string.IsNullOrEmpty(queryStringParameters))
+                _items.Add(queryStringParameters);
         }
 
         public void Add(object[] parameters)
         {
-            var str = string.Join("&", parameters);
-            _data = string.IsNullOrEmpty(_data) ? str: $"{str}&{_data}";
+            foreach (var parameter in parameters) 
+                _items.Add(parameter.ToString());
         }
 
         public void Add(string[] arguments)
         {
-            _data = _data ?? String.Empty;
-            if (arguments.Length > 0)
+            for (int i = 0; i < arguments.Length; i++)
             {
-                if (arguments.Length % 2 == 0)
+                var p = arguments[i];
+                if (!arguments[i].Contains("=") && i + 1 < arguments.Length)
                 {
-                    string str= $"{arguments[0]}={arguments[1]}"; 
-                    for (int i = 2; i < arguments.Length; i++)
-                    {
-                        str = $"{str}&{arguments[i]}={arguments[i + 1]}";
-                        i++;
-                    }
-
-                    _data = _data.Length > 0 ? $"{str}&{_data}" : str;
+                    Add(arguments[i], arguments[i + 1]);
+                    i++;
                 }
                 else
                 {
-                    throw new ArgumentException("Even number of arguments is expected");
+                    _items.Add(arguments[i]);
                 }
             }
         }
 
-        public static RequestData Empty=> new RequestData(string.Empty);
+        public static RequestData Empty=> new RequestData();
 
         public static RequestData Create(string queryStringParameters)
         {
@@ -88,6 +99,13 @@ namespace AVS.CoreLib.Utils
         }
 
         public static RequestData Create(object[] parameters)
+        {
+            var data = new RequestData();
+            data.Add(parameters);
+            return data;
+        }
+
+        public static RequestData Create(string[] parameters)
         {
             var data = new RequestData();
             data.Add(parameters);

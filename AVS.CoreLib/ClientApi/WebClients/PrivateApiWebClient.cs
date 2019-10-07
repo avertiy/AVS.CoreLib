@@ -1,15 +1,13 @@
-﻿using System;
-using System.Net;
+﻿using System.Net;
+using System.Security.Cryptography;
 using System.Text;
 using AVS.CoreLib.Utils;
 
 namespace AVS.CoreLib.ClientApi.WebClients
 {
-    public class PrivateApiWebClient: BaseWebClient, IWebClient
+    public class PrivateApiWebClient : PublicApiWebClient
     {
         protected Authenticator Authenticator { get; set; }
-        public bool AddCommandArg { get; set; }
-
         public Encoding Encoding
         {
             get => Authenticator.Encoding;
@@ -19,6 +17,13 @@ namespace AVS.CoreLib.ClientApi.WebClients
         public PrivateApiWebClient(string publicKey, string privateKey)
         {
             Authenticator = new Authenticator(publicKey, privateKey);
+            Options.DefaultVerb = "POST";
+        }
+
+        public PrivateApiWebClient(string publicKey, KeyedHashAlgorithm algorithm)
+        {
+            Authenticator = new Authenticator(publicKey, algorithm);
+            Options.DefaultVerb = "POST";
         }
 
         public void SwitchKeys(string publicKey, string privateKey)
@@ -26,30 +31,21 @@ namespace AVS.CoreLib.ClientApi.WebClients
             Authenticator.SwitchKeys(publicKey, privateKey);
         }
 
-        public HttpWebRequest CreateRequest(string command, RequestData data)
+        protected override void OnRequestCreating(string url, RequestData data, string command, string method)
         {
-            data.Add("nonce", NonceHelper.GetNonce());
-            if (AddCommandArg)
+            if(Options.AddCommandArg)
                 data.Add("command", command);
-            return CreatePostRequest(GetUrl(command), data.ToHttpQueryString());
+            data.Add("nonce", NonceHelper.GetNonce());
         }
-        
-        protected HttpWebRequest CreatePostRequest(string url, string postData)
-        {
-            var request = CreateHttpWebRequest("POST", url);
-            request.ContentType = "application/x-www-form-urlencoded";
 
-            var bytes = Authenticator.GetBytes(postData, out string signature);
-            request.ContentLength = bytes.Length;
+        protected override void OnRequestCreated(HttpWebRequest request, RequestData data)
+        {
+            var bytes = Authenticator.GetBytes(data.ToHttpQueryString(), out string signature);
             request.Headers["Key"] = Authenticator.PublicKey;
             request.Headers["Sign"] = signature;
-
-            using (var requestStream = request.GetRequestStream())
-            {
-                requestStream.Write(bytes, 0, bytes.Length);
-            }
-
-            return request;
+            //content data could be sent only with POST verb
+            request.Method = "POST";
+            request.WriteBytes(bytes);
         }
     }
 }

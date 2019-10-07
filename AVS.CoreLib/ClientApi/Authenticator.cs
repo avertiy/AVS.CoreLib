@@ -9,13 +9,19 @@ namespace AVS.CoreLib.ClientApi
     public class Authenticator
     {
         public Encoding Encoding = Encoding.ASCII;
-        public HMACSHA512 Encryptor { get; } = new HMACSHA512();
+        protected KeyedHashAlgorithm Encryptor { get; }
         public string PublicKey { get; private set; }
         
         public Authenticator(string publicKey, string privateKey)
         {
             PublicKey = publicKey;
-            Encryptor.Key = Encoding.GetBytes(privateKey);
+            Encryptor = new HMACSHA512(Encoding.GetBytes(privateKey));
+        }
+
+        public Authenticator(string publicKey, KeyedHashAlgorithm algorithm)
+        {
+            PublicKey = publicKey;
+            Encryptor = algorithm;
         }
 
         public void SwitchKeys(string publicKey, string privateKey)

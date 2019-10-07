@@ -44,9 +44,10 @@ namespace AVS.CoreLib.Json.Converters
             JToken token = jObject["error"] ?? jObject["Error"];
             if (token != null)
             {
-                ((Response)target).Error = (token.Value<string>());
+                ((Response)target).Error = token.Value<string>();
             }
-            else
+
+            if(string.IsNullOrEmpty(((Response)target).Error))
             {
                 serializer.Populate(jObject.CreateReader(), target);
             }

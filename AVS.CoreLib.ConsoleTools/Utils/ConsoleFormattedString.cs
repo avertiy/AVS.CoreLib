@@ -5,6 +5,9 @@ using System.Text.RegularExpressions;
 
 namespace AVS.CoreLib.ConsoleTools.Utils
 {
+    /// <summary>
+    /// parses formatted string int text: color scheme 
+    /// </summary>
     public class ConsoleFormattedString: IEnumerable<(string, ColorScheme, string)>
     {
         private static readonly Regex Regex = new Regex(@"\$\$(?<scheme>-.*?){{(?<text>.*?)}}", RegexOptions.Compiled);
@@ -17,7 +20,6 @@ namespace AVS.CoreLib.ConsoleTools.Utils
 
         private IEnumerable<(string, ColorScheme, string)> Iterate()
         {
-            
             var match = Regex.Match(Value);
             var pos = 0;
             

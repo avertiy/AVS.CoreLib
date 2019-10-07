@@ -90,11 +90,14 @@
     <Compile Include="ClientApi\WebClients\BaseWebClient.cs" />
     <Compile Include="ClientApi\Authenticator.cs" />
     <Compile Include="ClientApi\BaseApiClient.cs" />
+    <Compile Include="ClientApi\WebClients\ClientOptions.cs" />
     <Compile Include="ClientApi\WebClients\IWebClient.cs" />
     <Compile Include="ClientApi\Command.cs" />
     <Compile Include="ClientApi\WebClients\PrivateApiWebClient.cs" />
     <Compile Include="ClientApi\WebClients\PublicApiWebClient.cs" />
     <Compile Include="Infrastructure\Config\TaskNode.cs" />
+    <Compile Include="Json\Converters\ArrayConverter.cs" />
+    <Compile Include="Json\MapJsonException.cs" />
     <Compile Include="Json\Projections\DictionaryProjection.cs" />
     <Compile Include="Json\Projections\EnumerableProjection.cs" />
     <Compile Include="Json\JsonHelper.cs" />
@@ -131,8 +134,11 @@
     <Compile Include="Utils\GuardExtensions.cs" />
     <Compile Include="Utils\ConsoleLocker.cs" />
     <Compile Include="Utils\RawString.cs" />
+    <Compile Include="Utils\UrlHelper.cs" />
+    <Compile Include="Utils\WebRequestHelper.cs" />
     <Compile Include="_System\Debug\StopwatchExtensions.cs" />
     <Compile Include="_System\Net\KeyedResponse.cs" />
+    <Compile Include="_System\Net\LoadDataException.cs" />
     <Compile Include="_System\Net\Proxy\IProxyServerAddress.cs" />
     <Compile Include="_System\Net\Proxy\ProxyHelper.cs" />
     <Compile Include="_System\Net\Proxy\ProxyServerAutoResolver.cs" />

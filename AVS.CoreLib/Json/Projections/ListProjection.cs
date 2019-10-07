@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using AVS.CoreLib._System.Net;
+using AVS.CoreLib.Extensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -48,7 +49,14 @@ namespace AVS.CoreLib.Json
                     
                     if (token.Type == JTokenType.Array)
                     {
-                        response.Data = JsonHelper.ParseList<TValue>((JArray)token, typeof(TProjection), _itemAction); 
+                        try
+                        {
+                            response.Data = JsonHelper.ParseList<TValue>((JArray)token, typeof(TProjection), _itemAction);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new MapJsonException($"ParseList<{typeof(TValue).ToStringNotation()}> with projection of {typeof(TProjection).ToStringNotation()}> failed", ex);
+                        }
                         return response;
                     }
 
@@ -83,7 +91,14 @@ namespace AVS.CoreLib.Json
 
                     if (token.Type == JTokenType.Array)
                     {
-                        response.Data = JsonHelper.ParseList<TValue>((JArray)token, typeof(TProjection), _itemAction);
+                        try
+                        {
+                            response.Data = JsonHelper.ParseList<TValue>((JArray)token, typeof(TProjection), _itemAction);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw new MapJsonException($"ParseList<{typeof(TValue).ToStringNotation()}> with projection of {typeof(TProjection).ToStringNotation()}> failed", ex);
+                        }
                         return response;
                     }
 

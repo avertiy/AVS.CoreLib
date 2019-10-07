@@ -8,6 +8,7 @@ using AVS.CoreLib.Utils;
 
 namespace AVS.CoreLib.ClientApi
 {
+/*
     public struct Command
     {
         private readonly string _command;
@@ -23,7 +24,7 @@ namespace AVS.CoreLib.ClientApi
         {
             var data = new RequestData();
             data.Add(arguments);
-            var jsonText = Client.GetResponse(CreateRequest(data));
+            var jsonText = Client.Execute(CreateRequest(data));
             return new JsonResponseResult() { JsonText = jsonText };
         }
 
@@ -63,5 +64,5 @@ namespace AVS.CoreLib.ClientApi
             return Client.CreateRequest(_command, data);
         }
     }
-  
+  */
 }

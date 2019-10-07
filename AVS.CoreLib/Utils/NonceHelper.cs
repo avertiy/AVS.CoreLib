@@ -23,5 +23,14 @@ namespace AVS.CoreLib.Utils
 
             return CurrentHttpPostNonce.ToString(CultureInfo.InvariantCulture);
         }
+
+        /// <summary>
+        /// tonce the same as nonce but looks a bit (for 2-3 digits) shorter than nonce 
+        /// </summary>
+        public static string GetTonce()
+        {
+            return DateTimeOffset.Now.ToUnixTimeMilliseconds().ToString();
+        }
+        
     }
 }

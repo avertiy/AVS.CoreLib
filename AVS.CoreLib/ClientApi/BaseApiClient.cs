@@ -1,5 +1,7 @@
-﻿using AVS.CoreLib.ClientApi.WebClients;
+﻿using System.Security.Cryptography;
+using AVS.CoreLib.ClientApi.WebClients;
 using AVS.CoreLib.Json;
+using AVS.CoreLib.Utils;
 
 namespace AVS.CoreLib.ClientApi
 {
@@ -14,10 +16,16 @@ namespace AVS.CoreLib.ClientApi
             PrivateApiClient = new PrivateApiWebClient(publicApiKey, privateApiKey);
         }
 
+        protected BaseApiClient(string publicApiKey, KeyedHashAlgorithm algorithm)
+        {
+            PublicApiClient = new PublicApiWebClient();
+            PrivateApiClient = new PrivateApiWebClient(publicApiKey, algorithm);
+        }
+
         public JsonResponseResult ExecutePrivateCommand(string command, params string[] arguments)
         {
-            var cmd = new Command(command, PrivateApiClient);
-            return cmd.Execute(arguments);
+            var jsonText = PrivateApiClient.Execute("GET", null, command, RequestData.Create(arguments));
+            return new JsonResponseResult() { JsonText = jsonText };
         }
     }
 }

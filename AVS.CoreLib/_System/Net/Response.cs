@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using AVS.CoreLib.Json.Converters;
-using AVS.CoreLib._System.Debug;
 using Newtonsoft.Json;
 
 namespace AVS.CoreLib._System.Net
@@ -43,15 +42,48 @@ namespace AVS.CoreLib._System.Net
         {
             return foo.Data;
         }
-    }
 
-    public class LoadDataException : Exception
-    {
-        public LoadDataException(Response response) : base($"{DebugUtil.GetCallerName()} failed: {response.Error}")
+        public TResultModel To<TResultModel>(Action<T, TResultModel> onSuccess)
+            where TResultModel : Response, new()
         {
+            var result = this.Create<TResultModel>();
+            if (Success)
+            {
+                onSuccess(this.Data, result);
+            }
+
+            return result;
         }
-        public LoadDataException(string arg, Response response) : base($"{DebugUtil.GetCallerName()} for {arg} failed: {response.Error}")
+
+        public Response<TData> ToResponse<TData>()
         {
+            return this.Create<Response<TData>>();
+        }
+
+        public Response<TData> ToResponse<TData>(Func<TData> onSuccess)
+        {
+            var response = this.Create<Response<TData>>();
+            if (Success)
+            {
+                response.Data = onSuccess();
+            }
+            return response;
+        }
+
+        public Response<TData> ToResponse<TData>(Func<Response<TData>, TData> onSuccess)
+        {
+            var response = this.Create<Response<TData>>();
+            if (Success)
+            {
+                response.Data = onSuccess(response);
+            }
+            return response;
+        }
+
+        private TResultModel Create<TResultModel>() where TResultModel : Response, new()
+        {
+            var res = new TResultModel { Error = Error };
+            return res;
         }
     }
 }

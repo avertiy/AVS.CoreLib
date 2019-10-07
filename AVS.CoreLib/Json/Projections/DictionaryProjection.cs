@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using AVS.CoreLib._System.Net;
+using AVS.CoreLib.Extensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -26,6 +27,11 @@ namespace AVS.CoreLib.Json
             return this;
         }
 
+        /// <summary>
+        /// Maps json into specified type T
+        /// </summary>
+        /// <typeparam name="T">Type inherited from Response &lt;IDictionary&lt;TKey, TValue>></typeparam>
+        /// <typeparam name="TProjection">implementation of the TValue interface, in case TValue is IList&lt;IEntity> TProjection must be implementation of IEntity</typeparam>
         public T Map<T, TProjection>() 
             where T : Response<IDictionary<TKey, TValue>>, new()
             where TProjection : new()
@@ -47,8 +53,18 @@ namespace AVS.CoreLib.Json
                     if (token.Type == JTokenType.Object)
                     {
                         var jObject = (JObject)token;
-                        if (!ContainsError(jObject, (Response)response))
-                            response.Data = JsonHelper.ParseDictionary<TKey,TValue,TProjection>(jObject, _itemAction);
+                        if (!ContainsError(jObject, (Response) response))
+                        {
+                            try
+                            {
+                                response.Data = JsonHelper.ParseDictionary<TKey, TValue, TProjection>(jObject, _itemAction);
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new MapJsonException($"ParseDictionary<{typeof(TKey).Name},{typeof(TValue).ToStringNotation()}> with projection of {typeof(TProjection).ToStringNotation()}> failed", ex);
+                            }
+                        }
+                            
                         return response;
                     }
 
@@ -57,7 +73,11 @@ namespace AVS.CoreLib.Json
             }
             return response;
         }
-        
+
+        /// <summary>
+        /// Maps json into Response&lt;IDictionary&lt;TKey, TValue>>
+        /// </summary>
+        /// <typeparam name="TProjection">implementation of the TValue interface, in case TValue is IList&lt;IEntity> TProjection must be implementation of IEntity</typeparam>
         public Response<IDictionary<TKey, TValue>> Map<TProjection>()
             where TProjection : new()
         {
@@ -78,8 +98,18 @@ namespace AVS.CoreLib.Json
                     if (token.Type == JTokenType.Object)
                     {
                         var jObject = (JObject)token;
-                        if (!ContainsError(jObject, (Response)response))
-                            response.Data = JsonHelper.ParseDictionary<TKey, TValue, TProjection>(jObject, _itemAction);
+                        if (!ContainsError(jObject, (Response) response))
+                        {
+                            try
+                            {
+                                response.Data = JsonHelper.ParseDictionary<TKey, TValue, TProjection>(jObject, _itemAction);
+                            }
+                            catch (Exception ex)
+                            {
+                                throw new MapJsonException($"ParseDictionary<{typeof(TKey).Name},{typeof(TValue).ToStringNotation()}> with projection of {typeof(TProjection).ToStringNotation()}> failed", ex);
+                            }
+                        }
+                            
                         return response;
                     }
 
