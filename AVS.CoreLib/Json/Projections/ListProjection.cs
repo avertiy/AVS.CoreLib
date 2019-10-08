@@ -12,15 +12,16 @@ namespace AVS.CoreLib.Json
 {
     public class ListProjection<TValue> : Projection
     {
-        private Action<TValue> _itemAction;
         [DebuggerStepThrough]
         public ListProjection(string jsonText) : base(jsonText)
         {
         }
 
-        public ListProjection<TValue> ForEach(Action<TValue> action)
+        private Action<TValue> _itemFunc;
+
+        public ListProjection<TValue> ForEach(Action<TValue> func)
         {
-            _itemAction = action;
+            _itemFunc = func;
             return this;
         }
 
@@ -51,7 +52,7 @@ namespace AVS.CoreLib.Json
                     {
                         try
                         {
-                            response.Data = JsonHelper.ParseList<TValue>((JArray)token, typeof(TProjection), _itemAction);
+                            response.Data = JsonHelper.ParseList<TValue>((JArray)token, typeof(TProjection), _itemFunc);
                         }
                         catch (Exception ex)
                         {
@@ -93,7 +94,7 @@ namespace AVS.CoreLib.Json
                     {
                         try
                         {
-                            response.Data = JsonHelper.ParseList<TValue>((JArray)token, typeof(TProjection), _itemAction);
+                            response.Data = JsonHelper.ParseList<TValue>((JArray)token, typeof(TProjection), _itemFunc);
                         }
                         catch (Exception ex)
                         {

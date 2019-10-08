@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -13,6 +14,14 @@ namespace AVS.CoreLib.Json
         [DebuggerStepThrough]
         public EnumerableProjection(string jsonText) : base(jsonText)
         {
+        }
+
+        private Action<TValue> _itemFunc;
+
+        public EnumerableProjection<TValue> ForEach(Action<TValue> func)
+        {
+            _itemFunc = func;
+            return this;
         }
 
         public TResult Map<TResult, TProjection>() where TResult : Response<IEnumerable<TValue>>, new()
@@ -42,8 +51,7 @@ namespace AVS.CoreLib.Json
                     {
                         var jArray = (JArray) token;
                         response.Data = !jArray.HasValues ? 
-                            new List<TValue>() : 
-                            JsonHelper.ParseEnumerable<TValue>((JArray)token, typeof(TProjection));
+                            new List<TValue>() : ParseEnumerable((JArray)token, typeof(TProjection));
                         return response;
                     }
 
@@ -78,7 +86,7 @@ namespace AVS.CoreLib.Json
 
                     if (token.Type == JTokenType.Array)
                     {
-                        response.Data = JsonHelper.ParseList<TValue>((JArray)token, typeof(TProjection));
+                        response.Data = JsonHelper.ParseList<TValue>((JArray)token, typeof(TProjection), _itemFunc);
                         return response;
                     }
 
@@ -99,5 +107,24 @@ namespace AVS.CoreLib.Json
 
             return await Task.Run(() => Map<TProjection>()).ConfigureAwait(false);
         }
+
+        protected IEnumerable<TValue> ParseEnumerable(JArray jArray, Type itemType)
+        {
+            var serializer = new JsonSerializer() { NullValueHandling = NullValueHandling.Ignore };
+
+            foreach (JToken token in jArray)
+            {
+                if (token.Type != JTokenType.Object)
+                {
+                    throw new JsonReaderException($"Unexpected JToken type {token.Type}");
+                }
+                var value = (TValue)serializer.Deserialize(token.CreateReader(), itemType);
+
+                _itemFunc?.Invoke(value);
+                
+                yield return value;
+            }
+        }
+
     }
 }
