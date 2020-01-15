@@ -66,6 +66,20 @@ namespace AVS.CoreLib.ConsoleTools.Bootstraping
             return tconfig;
         }
 
+        public T UseDefaultConfig<T>(string appId) where T : AppConfig, new()
+        {
+            _config = ConfigurationManager.GetSection("AppConfig") as AppConfig;
+
+            if (_config == null)
+            {
+                _config = new T(){AppInstance = new AppConfig.AppInstanceNode(appId)};
+            }
+
+            var tconfig = (T)_config;
+            Logger.WriteLine($"{tconfig.AppInstance.Id} config initialized");
+            return tconfig;
+        }
+
         public void InstallScheduledTasks(bool clearData = false, bool reinitialize = true)
         {
             if (!_engineContextInitialized)
@@ -78,6 +92,8 @@ namespace AVS.CoreLib.ConsoleTools.Bootstraping
 
         public void InitializeEngineContext(bool forceRecreate = false)
         {
+            if(_config == null)
+                throw new Exception("App config is not set [either call InitConfig<T>() or UseDefaultConfig<T>()]");
             //startup tasks are executed here, incl. DbContext initialization (EfStartupTask)
             EngineContext.Initialize(forceRecreate, _config);
             _engineContextInitialized = true;
@@ -197,12 +213,16 @@ namespace AVS.CoreLib.ConsoleTools.Bootstraping
             }
         }
 
-        public static void Run(string serviceName, Action<BootstrapAsService> configuration)
+        /// <summary>
+        /// when you bootstrap with RunAsService your console app
+        /// could be run either as a console app or as a windows service
+        /// </summary>
+        public static void RunAsService(string serviceName, Action<BootstrapWrapper> configuration)
         {
             if (Environment.UserInteractive)
             {
                 ConsoleExt.SetDefaultColor();
-                var x = new BootstrapAsService(){Logger = new ConsoleWriter()};
+                var x = new BootstrapWrapper(){Logger = new ConsoleWriter()};
                 configuration(x);
 
                 ConsoleExt.SetGrayColor();
@@ -231,7 +251,7 @@ namespace AVS.CoreLib.ConsoleTools.Bootstraping
 
         private static void Test()
         {
-            Bootstrap.Run("myService", 
+            Bootstrap.RunAsService("myService", 
                 x => x.OnStart(b =>
                     {
                         b.AddWebApiHost("Poloniex API", "https://poloniex.com/public?command=returnTicker");

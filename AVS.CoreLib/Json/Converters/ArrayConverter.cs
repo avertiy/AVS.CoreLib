@@ -37,7 +37,7 @@ namespace AVS.CoreLib.Json.Converters
                 if (attribute.Index >= arr.Count)
                     continue;
 
-                if (property.PropertyType.BaseType == typeof(Array))
+                if(property.PropertyType.BaseType == typeof(Array))
                 {
                     var objType = property.PropertyType.GetElementType();
                     var innerArray = (JArray)arr[attribute.Index];
@@ -143,7 +143,7 @@ namespace AVS.CoreLib.Json.Converters
         }
     }
 
-    public class ArrayPropertyAttribute : Attribute
+    public class ArrayPropertyAttribute: Attribute
     {
         public int Index { get; }
 

@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Text.RegularExpressions;
 using AVS.CoreLib.Extensions;
 using Newtonsoft.Json;
 
@@ -59,6 +61,30 @@ namespace AVS.CoreLib.Json
                     }
                 }
             }
+        }
+
+        public void Take(string regex_pattern, RegexOptions options = RegexOptions.None)
+        {
+            var re = new Regex(regex_pattern, options);
+            var match = re.Match(JsonText);
+            
+            if (match.Success)
+            {
+                JsonText = match.Groups["data"].Success ? match.Groups["data"].Value : match.Value;
+            }
+        }
+
+        public void TakeMany(string regex_pattern, RegexOptions options = RegexOptions.None)
+        {
+            var re = new Regex(regex_pattern, options);
+            var match = re.Match(JsonText);
+            var items = new List<string>();
+            while (match.Success)
+            {
+                items.Add(match.Groups["data"].Success ? match.Groups["data"].Value : match.Value);
+                match = match.NextMatch();
+            }
+            JsonText = $"[{string.Join(",", items)}]";
         }
     }
 }

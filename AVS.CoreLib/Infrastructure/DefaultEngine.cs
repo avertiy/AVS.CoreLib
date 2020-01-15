@@ -48,7 +48,14 @@ namespace AVS.CoreLib.Infrastructure
         
         public T Resolve<T>() where T : class
         {
-            return this.ContainerManager.Resolve<T>("", (ILifetimeScope)null);
+            try
+            {
+                return this.ContainerManager.Resolve<T>("", (ILifetimeScope) null);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Autofac=> unable to resolve {typeof(T).Name}",ex);
+            }
         }
 
         public object Resolve(Type type)
@@ -68,6 +75,8 @@ namespace AVS.CoreLib.Infrastructure
         {
             ContainerBuilder builder = new ContainerBuilder();
 
+            if(config == null)
+                throw new ArgumentNullException("config");
             builder.RegisterInstance<IAppConfig>(config).As<IAppConfig>().SingleInstance();
             builder.RegisterInstance<IEngine>(this).As<IEngine>().SingleInstance();
 

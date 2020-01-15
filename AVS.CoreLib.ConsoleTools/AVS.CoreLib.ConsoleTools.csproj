@@ -51,7 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bootstraping\Bootstrap.cs" />
-    <Compile Include="Bootstraping\BootstrapAsService.cs" />
+    <Compile Include="Bootstraping\BootstrapWrapper.cs" />
     <Compile Include="Commands\CommandHandler.cs" />
     <Compile Include="Commands\HelpCommand.cs" />
     <Compile Include="Commands\IConsoleCommand.cs" />

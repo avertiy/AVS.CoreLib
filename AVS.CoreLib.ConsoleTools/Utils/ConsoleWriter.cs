@@ -50,7 +50,10 @@ namespace AVS.CoreLib.ConsoleTools.Utils
 
         public void WriteError(Exception ex, bool printStackTrace)
         {
-            ConsoleOut.PrintF($"\r\n{ex.GetType().Name:red}: {ex.Message:darkred}");
+            ConsoleOut.PrintF($"\r\n{ex.GetType().Name:red}: {ex.Message:darkred}\r\n");
+            if(ex.InnerException!=null)
+                ConsoleOut.PrintF($"\r\n{ex.InnerException.ToString()}");
+
             if (printStackTrace)
             {
                 ConsoleOut.PrintF($"\r\n{ex.StackTrace:darkgray}\r\n");

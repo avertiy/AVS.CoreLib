@@ -22,7 +22,7 @@ namespace AVS.CoreLib.Json
         private Action<TKey, TValue> _itemAction = null;
         private Func<string, TKey> _keyFunc = null;
         private Func<TValue, TValue> _valueFunc = null;
-
+        private Func<string, bool> _where = null;
         [DebuggerStepThrough]
         public DictionaryProjection(string jsonText) : base(jsonText)
         {
@@ -40,6 +40,11 @@ namespace AVS.CoreLib.Json
             return this;
         }
 
+        public DictionaryProjection<TKey, TValue> Where(Func<string, bool> predicate)
+        {
+            _where = predicate;
+            return this;
+        }
 
         public DictionaryProjection<TKey, TValue> Value(Func<TValue, TValue> valueFunc)
         {
@@ -167,14 +172,15 @@ namespace AVS.CoreLib.Json
             {
                 foreach (KeyValuePair<string, JToken> kp in jObject)
                 {
-                    if (kp.Value.Type != JTokenType.Object)
-                    {
-                        throw new JsonReaderException($"Unexpected JToken type {kp.Value.Type}");
-                    }
+                    if (_where != null && !_where(kp.Key))
+                        continue;
 
-                    var value = (TValue)serializer.Deserialize(kp.Value.CreateReader(), itemType);
+                    if (kp.Value.Type != JTokenType.Object)
+                        throw new JsonReaderException($"Unexpected JToken type {kp.Value.Type}");
                     
-                    var key = _keyFunc == null ? ConvertToTKey<TKey>(kp.Key): _keyFunc(kp.Key);
+                    var value = (TValue)serializer.Deserialize(kp.Value.CreateReader(), itemType);
+
+                    var key = _keyFunc == null ? ConvertToTKey<TKey>(kp.Key) : _keyFunc(kp.Key);
                     value = _valueFunc != null ? _valueFunc(value) : value;
 
                     _itemAction?.Invoke(key, value);
@@ -193,10 +199,11 @@ namespace AVS.CoreLib.Json
 
                     foreach (KeyValuePair<string, JToken> kp in jObject)
                     {
+                        if (_where != null && !_where(kp.Key))
+                            continue;
+
                         if (kp.Value.Type != JTokenType.Array)
-                        {
                             throw new JsonReaderException($"Unexpected JToken type {kp.Value.Type}");
-                        }
 
                         var list = ParseGenericType<TValue>((JArray)kp.Value, genericType, addMethod, itemType);
 

@@ -32,6 +32,9 @@ namespace AVS.CoreLib.ConsoleTools.Commands
 
         public virtual void HandleCommand(string input)
         {
+            input = input.Trim(' ', '\0');
+            if (!input.StartsWith("/"))
+                input = "/" + input;
             int ind = input.IndexOf(" ", StringComparison.Ordinal);
             string command = input;
             Dictionary<string, string> args = new Dictionary<string, string>();

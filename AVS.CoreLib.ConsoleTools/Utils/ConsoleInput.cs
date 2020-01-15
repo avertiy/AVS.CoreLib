@@ -52,7 +52,7 @@ namespace AVS.CoreLib.ConsoleTools.Utils
 
         private static void WaitForCommand()
         {
-            Console.Write("\r\n$");
+            ConsoleOut.PrintF($"\r\n{"type command or press F1 to get help or press Esc to escape":Green}\r\n$",false);
 
             var keyInfo = ReadKey(true);
             if (keyInfo.Key == ConsoleKey.Escape)

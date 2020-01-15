@@ -21,6 +21,11 @@ namespace AVS.CoreLib.ConsoleTools.Utils
             Apply(Default);
         }
 
+        public static void Clear()
+        {
+            Console.Clear();
+        }
+
         public static void PrintF(FormattableString str, bool endLine = true)
         {
             PrintF((ConsoleFormattedString) str, endLine);

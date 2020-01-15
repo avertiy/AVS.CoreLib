@@ -7,9 +7,9 @@ namespace AVS.CoreLib.ConsoleTools.Bootstraping
 {
     public class WindowsService : ServiceBase
     {
-        protected readonly Action<BootstrapAsService> Configuration;
+        protected readonly Action<BootstrapWrapper> Configuration;
         protected Action StopCallback;
-        public WindowsService(string serviceName, Action<BootstrapAsService> configuration)
+        public WindowsService(string serviceName, Action<BootstrapWrapper> configuration)
         {
             ServiceName = serviceName;
             Configuration = configuration;
@@ -19,7 +19,7 @@ namespace AVS.CoreLib.ConsoleTools.Bootstraping
         {
             try
             {
-                var x = new BootstrapAsService();
+                var x = new BootstrapWrapper();
                 Configuration(x);
                 StopCallback = x.StopCallback;
                 File.AppendAllText($"c:\\temp\\{ServiceName}.txt", $"{DateTime.Now} started{Environment.NewLine}");

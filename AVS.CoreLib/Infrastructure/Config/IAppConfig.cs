@@ -21,18 +21,19 @@ namespace AVS.CoreLib.Infrastructure.Config
     /// <summary>
     /// Configuratuion section handler 
     /// </summary>
-    public partial class AppConfig : XmlConfigNodeBase, IAppConfig
+    public class AppConfig : XmlConfigNodeBase, IAppConfig
     {
+        
         /// <summary>
         /// Indicates whether we should ignore startup tasks
         /// </summary>
-        public bool IgnoreStartupTasks { get; protected set; }
-        public bool IgnoreAutoMapper { get; protected set; }
-        public bool NoDatabase { get; protected set; }
+        public bool IgnoreStartupTasks { get; set; }
+        public bool IgnoreAutoMapper { get; set; }
+        public bool NoDatabase { get; set; }
         
-        public TasksNode Tasks { get; protected set; }
-        public VpnNode Vpn { get; protected set; }
-        public AppInstanceNode AppInstance { get; protected set; }
+        public TasksNode Tasks { get; set; }
+        public VpnNode Vpn { get; set; }
+        public AppInstanceNode AppInstance { get; set; }
 
         /// <summary>
         /// Creates a configuration section handler.
@@ -83,9 +84,9 @@ namespace AVS.CoreLib.Infrastructure.Config
 
         public class TasksNode: XmlConfigNodeBase
         {
-            public string InstallForAppInstanceId { get; protected set; }
-            public bool Enabled { get; protected set; }
-            public bool Install { get; protected set; }
+            public string InstallForAppInstanceId { get; set; }
+            public bool Enabled { get; set; }
+            public bool Install { get; set; }
             public bool DetailedLogging { get; set; }
 
             public List<TaskNode> Tasks { get; protected set; }
@@ -94,6 +95,11 @@ namespace AVS.CoreLib.Infrastructure.Config
             /// system messages like start / stop time etc.
             /// </summary>
             public bool SystemLogging { get; set; }
+
+            public TasksNode()
+            {
+                Tasks = new List<TaskNode>();
+            }
 
             public TasksNode(XmlNode node)
             {
@@ -127,6 +133,11 @@ namespace AVS.CoreLib.Infrastructure.Config
         public class AppInstanceNode : XmlConfigNodeBase
         {
             public string Id { get; protected internal set; }
+
+            public AppInstanceNode(string id)
+            {
+                Id = id;
+            }
 
             public AppInstanceNode(XmlNode node)
             {

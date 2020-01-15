@@ -87,6 +87,7 @@
     <Compile Include="Caching\ICacheManager.cs" />
     <Compile Include="Caching\MemoryCacheManager.cs" />
     <Compile Include="Caching\NullCache.cs" />
+    <Compile Include="ClientApi\ApiCommand.cs" />
     <Compile Include="ClientApi\WebClients\BaseWebClient.cs" />
     <Compile Include="ClientApi\Authenticator.cs" />
     <Compile Include="ClientApi\BaseApiClient.cs" />
