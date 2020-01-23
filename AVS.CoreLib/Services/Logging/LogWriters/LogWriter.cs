@@ -130,7 +130,7 @@ namespace AVS.CoreLib.Services.Logging.LogWriters
                 return;
             }
 
-            if (response.HasError)
+            if (response.Success == false)
             {
                 WriteFail(message, response.Error);
                 return;

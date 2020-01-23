@@ -9,16 +9,16 @@ namespace AVS.CoreLib._System.Net
         public Response<TValue> ToResponse(TKey key)
         {
             var response = new Response<TValue>();
-            if (HasError)
-            {
-                response.Error = Error;
-            }
-            else
+            if (Success)
             {
                 if (Data.ContainsKey(key))
                 {
                     response.Data = Data[key];
                 }
+            }
+            else
+            {
+                response.Error = Error;
             }
             return response;
         }

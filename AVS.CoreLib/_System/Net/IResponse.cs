@@ -5,7 +5,6 @@ namespace AVS.CoreLib._System.Net
     public interface IResponse
     {
         string Error { get; }
-        bool HasError { get; }
         bool Success { get; }
     }
 
