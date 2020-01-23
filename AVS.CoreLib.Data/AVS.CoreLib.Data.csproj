@@ -80,6 +80,7 @@
     <Compile Include="Domain\Mappings\ScheduleTaskMap.cs" />
     <Compile Include="EF\BaseDbContext.cs" />
     <Compile Include="EF\BasePluginDbContext.cs" />
+    <Compile Include="EF\DummyDbAsyncEnumerator.cs" />
     <Compile Include="EF\DynamicLoadEntityTypeConfiguration.cs" />
     <Compile Include="EF\EfRepository.cs" />
     <Compile Include="EF\InMemoryDbContext.cs" />

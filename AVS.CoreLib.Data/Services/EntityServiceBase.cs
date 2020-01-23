@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -303,14 +304,13 @@ namespace AVS.CoreLib.Data.Services
         public async Task<IList<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> predicate)
         {
             var query = Repository.Table.AsQueryable().Where(predicate);
-            try
+            if (query is IDbAsyncEnumerable<TEntity>)
             {
-                List<TEntity> res = await query.ToListAsync();
-                return res;
+                return await query.ToListAsync();
             }
-            catch (Exception ex)
+            else
             {
-                throw ex;
+                return query.ToList();
             }
         }
 

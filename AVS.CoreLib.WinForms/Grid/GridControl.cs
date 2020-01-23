@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Drawing;
 using System.Drawing.Design;
 using System.Text;
 using System.Threading;
@@ -15,6 +16,7 @@ namespace AVS.CoreLib.WinForms.Grid
         DataGridView DataGrid { get; }
         string GridSummaryText { get; set; }
         void ReportProgress(string message, int percentage);
+        void SetError(string error);
     }
 
     public partial class GridControl : UserControl, IGridControl 
@@ -38,6 +40,12 @@ namespace AVS.CoreLib.WinForms.Grid
         {
             get => lblStatus.Text;
             set => lblStatus.Text = value;
+        }
+
+        public void SetError(string error)
+        {
+            lblStatus.Text = error;
+            lblStatus.ForeColor = Color.Red;
         }
 
         public DataGridViewHeaderBorderStyle RowHeadersBorderStyle
@@ -104,6 +112,8 @@ namespace AVS.CoreLib.WinForms.Grid
         {
             backgroundWorker.ReportProgress(percentage, message);
         }
+
+        
 
         public void BindData(object data)
         {

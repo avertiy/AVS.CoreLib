@@ -3,18 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Linq.Expressions;
 
 namespace AVS.CoreLib.Data.EF
 {
-    public class InMemoryDbSet<TEntity> : IDbSet<TEntity>
+    public class InMemoryDbSet<TEntity> : IDbSet<TEntity>, IDbAsyncEnumerable<TEntity>
         where TEntity : BaseEntity
     {
         private readonly List<TEntity> _items = new List<TEntity>();
         public IEnumerator<TEntity> GetEnumerator()
         {
-
             return _items.GetEnumerator();
         }
 
@@ -62,5 +62,15 @@ namespace AVS.CoreLib.Data.EF
         }
 
         public ObservableCollection<TEntity> Local => null;
+
+        public IDbAsyncEnumerator<TEntity> GetAsyncEnumerator()
+        {
+            return new DummyDbAsyncEnumerator<TEntity>(_items);
+        }
+
+        IDbAsyncEnumerator IDbAsyncEnumerable.GetAsyncEnumerator()
+        {
+            return GetAsyncEnumerator();
+        }
     }
 }
