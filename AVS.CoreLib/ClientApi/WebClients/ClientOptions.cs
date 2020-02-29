@@ -16,7 +16,15 @@ namespace AVS.CoreLib.ClientApi.WebClients
         public IWebProxy Proxy { get; private set; }
         public string GetBaseUrl(string command, string apiVersion)
         {
-            return $"{BaseAddress}{apiVersion ?? ApiVersion}{RelativeUrl}{command}";
+            if (apiVersion != null)
+            {
+                if (apiVersion.StartsWith("https"))
+                {
+                    return $"{apiVersion}{command}";
+                }
+                return $"{BaseAddress}{apiVersion}{RelativeUrl}{command}";
+            }
+            return $"{BaseAddress}{ApiVersion}{RelativeUrl}{command}";
         }
 
         public override string ToString()

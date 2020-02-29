@@ -25,6 +25,11 @@ namespace AVS.CoreLib._System.Net
             return foo.Success;
         }
 
+        public static Response<T> Create<T>(string source = null)
+        {
+            return new Response<T>();
+        }
+
         public static Response<T> Create<T>(T data, Exception ex)
         {
             return new Response<T>() { Data = data, Error = ex.Message };
@@ -74,6 +79,14 @@ namespace AVS.CoreLib._System.Net
                 onSuccess(this.Data, result);
             }
             return result;
+        }
+        
+        public Response<TData> AsResponse<TData>(Func<T, TData> transform)
+        {
+            var response = new Response<TData>() { Error = Error };
+            if (Error == null)
+                response.Data = transform(Data);
+            return response;
         }
     }
 }

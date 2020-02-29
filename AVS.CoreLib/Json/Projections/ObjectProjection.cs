@@ -10,12 +10,20 @@ namespace AVS.CoreLib.Json
 {
     public class ObjectProjection<TValue> : Projection 
     {
+        private Action<TValue> _action;
         [DebuggerStepThrough]
         public ObjectProjection(string jsonText) : base(jsonText)
         {
+        }    
+
+        public ObjectProjection<TValue> PreProcess(Action<TValue> action)
+        {
+            _action = action;
+            return this;
         }
 
-        public T Map<T,TProjection>() 
+
+        public T Map<T,TProjection>(Action<TProjection> action = null) 
             where T : Response<TValue>, new()
             where TProjection : TValue, new()
         {
@@ -44,7 +52,10 @@ namespace AVS.CoreLib.Json
 
                     try
                     {
-                        response.Data = JsonHelper.ParseObject<TProjection>(jObject);
+                        var projection = JsonHelper.ParseObject<TProjection>(jObject);
+                        _action?.Invoke(projection);
+                        action?.Invoke(projection);
+                        response.Data = projection;
                     }
                     catch (Exception ex)
                     {
@@ -55,11 +66,11 @@ namespace AVS.CoreLib.Json
             return response;
         }
 
-        public Response<TValue> Map<TProjection>() 
+        public Response<TValue> Map<TProjection>(Action<TProjection> action = null) 
             where TProjection : TValue, new()
         {
             Response<TValue> response = null;
-            if (string.IsNullOrEmpty(JsonText) || JsonText == "{}")
+            if (IsEmpty)
             {
                 response = new Response<TValue>() { Data = new TProjection() };
             }
@@ -83,45 +94,15 @@ namespace AVS.CoreLib.Json
 
                     try
                     {
-                        response.Data = JsonHelper.ParseObject<TProjection>(jObject);
+                        var projection = JsonHelper.ParseObject<TProjection>(jObject);
+                        _action?.Invoke(projection);
+                        action?.Invoke(projection);
+                        response.Data = projection;
                     }
                     catch (Exception ex)
                     {
                         throw new MapJsonException($"ParseObject<{typeof(TProjection).ToStringNotation()}> failed", ex);
                     }
-                }
-            }
-            return response;
-        }
-
-        public Response<TValue> Map<TProjection>(Action<TProjection> action)
-            where TProjection : TValue, new()
-        {
-            Response<TValue> response = null;
-            if (string.IsNullOrEmpty(JsonText) || JsonText == "{}")
-            {
-                response = new Response<TValue>() { Data = new TProjection() };
-            }
-            else
-            {
-                using (var stringReader = new StringReader(JsonText))
-                using (var reader = new JsonTextReader(stringReader))
-                {
-                    response = new Response<TValue>();
-
-                    JToken token = JToken.Load(reader);
-
-                    if (token.Type != JTokenType.Object)
-                    {
-                        throw new JsonReaderException($"Unexpected JToken type {token.Type}");
-                    }
-
-                    var jObject = (JObject)token;
-                    if (ContainsError(jObject, (Response)response))
-                        return response;
-                    var data = JsonHelper.ParseObject<TProjection>(jObject);
-                    action(data);
-                    response.Data = data;
                 }
             }
             return response;

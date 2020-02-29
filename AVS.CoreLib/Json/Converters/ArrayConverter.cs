@@ -37,7 +37,7 @@ namespace AVS.CoreLib.Json.Converters
                 if (attribute.Index >= arr.Count)
                     continue;
 
-                if(property.PropertyType.BaseType == typeof(Array))
+                if (property.PropertyType.BaseType == typeof(Array))
                 {
                     var objType = property.PropertyType.GetElementType();
                     var innerArray = (JArray)arr[attribute.Index];
@@ -80,8 +80,8 @@ namespace AVS.CoreLib.Json.Converters
                             value = null;
 
                     if ((property.PropertyType == typeof(decimal)
-                         || property.PropertyType == typeof(decimal?))
-                        && (value != null && value.ToString().Contains("e")))
+                     || property.PropertyType == typeof(decimal?))
+                     && (value != null && value.ToString().Contains("e")))
                     {
                         if (decimal.TryParse(value.ToString(), NumberStyles.Float, CultureInfo.InvariantCulture, out var dec))
                             property.SetValue(result, dec);
@@ -98,9 +98,10 @@ namespace AVS.CoreLib.Json.Converters
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             writer.WriteStartArray();
-            var props = value.GetType().GetProperties();
-            var ordered = props.OrderBy(p => CustomAttributeExtensions.GetCustomAttribute<ArrayPropertyAttribute>((MemberInfo) p)?.Index);
-
+            var type = value.GetType();
+            var boolType = typeof(bool);
+            var props = type.GetProperties();
+            var ordered = props.OrderBy(p => p.GetCustomAttribute<ArrayPropertyAttribute>()?.Index);
             var last = -1;
             foreach (var prop in ordered)
             {
@@ -110,6 +111,15 @@ namespace AVS.CoreLib.Json.Converters
 
                 if (arrayProp.Index == last)
                     continue;
+
+                var shouldSerializeName = "ShouldSerialize" + prop.Name;
+                var mi = type.GetMethod(shouldSerializeName);
+                if (mi != null && mi.ReturnType == boolType)
+                {
+                    bool shouldSerialize = (bool)mi.Invoke(value, new object[] { });
+                    if (shouldSerialize == false)
+                        continue;
+                }
 
                 while (arrayProp.Index != last + 1)
                 {
@@ -137,13 +147,13 @@ namespace AVS.CoreLib.Json.Converters
                 return IsSimple(type.GetGenericArguments()[0]);
             }
             return type.IsPrimitive
-                   || type.IsEnum
-                   || type == typeof(string)
-                   || type == typeof(decimal);
+              || type.IsEnum
+              || type == typeof(string)
+              || type == typeof(decimal);
         }
     }
 
-    public class ArrayPropertyAttribute: Attribute
+    public class ArrayPropertyAttribute : Attribute
     {
         public int Index { get; }
 

@@ -12,33 +12,34 @@ namespace AVS.CoreLib.Json
 {
     public class ListProjection<TValue> : Projection
     {
+        private Action<TValue> _itemAction;
         [DebuggerStepThrough]
         public ListProjection(string jsonText) : base(jsonText)
         {
         }
-
-        private Action<TValue> _itemFunc;
-
-        public ListProjection<TValue> ForEach(Action<TValue> func)
+        
+        public ListProjection<TValue> ForEach(Action<TValue> action)
         {
-            _itemFunc = func;
+            _itemAction = action;
             return this;
         }
 
         public TResult Map<TResult,TProjection>() where TResult : Response<IList<TValue>>, new()
         {
-            TResult response = null;
-            if (string.IsNullOrEmpty(JsonText) || JsonText == "[]")
+            TResult response = new TResult();
+            if (IsEmpty)
             {
-                response = new TResult() { Data = new List<TValue>() };
+                response.Data = new List<TValue>();
+            }
+            else if (ContainsError(out string err))
+            {
+                response.Error = err;
             }
             else
             {
                 using (var stringReader = new StringReader(JsonText))
                 using (var reader = new JsonTextReader(stringReader))
                 {
-                    response = new TResult();
-
                     JToken token = JToken.Load(reader);
 
                     if (token.Type == JTokenType.Object)
@@ -47,12 +48,12 @@ namespace AVS.CoreLib.Json
                         if (ContainsError(jObject, (Response)response))
                             return response;
                     }
-                    
+
                     if (token.Type == JTokenType.Array)
                     {
                         try
                         {
-                            response.Data = JsonHelper.ParseList<TValue>((JArray)token, typeof(TProjection), _itemFunc);
+                            response.Data = JsonHelper.ParseList<TValue>((JArray)token, typeof(TProjection), _itemAction);
                         }
                         catch (Exception ex)
                         {
@@ -94,7 +95,7 @@ namespace AVS.CoreLib.Json
                     {
                         try
                         {
-                            response.Data = JsonHelper.ParseList<TValue>((JArray)token, typeof(TProjection), _itemFunc);
+                            response.Data = JsonHelper.ParseList<TValue>((JArray)token, typeof(TProjection), _itemAction);
                         }
                         catch (Exception ex)
                         {

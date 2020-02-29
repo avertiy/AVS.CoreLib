@@ -12,6 +12,8 @@ namespace AVS.CoreLib.Json
     {
         public string JsonText { get; set; }
 
+        public string Error { get; set; }      
+
         public JsonResponseResult()
         {
         }
@@ -63,28 +65,69 @@ namespace AVS.CoreLib.Json
             }
         }
 
-        public void Take(string regex_pattern, RegexOptions options = RegexOptions.None)
+         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="regex_pattern">pattern should contain a named group "data"</param>
+        /// <param name="errorText">when pattern does not match and errorText is provided the JsonText will be set as the following json object { "error": "errorText"}</param>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public bool Take(string regex_pattern, string errorText = null, RegexOptions options = RegexOptions.None)
         {
             var re = new Regex(regex_pattern, options);
             var match = re.Match(JsonText);
-            
+
             if (match.Success)
             {
                 JsonText = match.Groups["data"].Success ? match.Groups["data"].Value : match.Value;
             }
+            else if (!string.IsNullOrEmpty(errorText))
+            {
+                JsonText = $"{{\"error\":\"{errorText}\"}}";
+            }
+            return match.Success;
         }
 
-        public void TakeMany(string regex_pattern, RegexOptions options = RegexOptions.None)
+        public JsonResponseResult TakeMany(string regex_pattern, string errorText = null, RegexOptions options = RegexOptions.None)
         {
             var re = new Regex(regex_pattern, options);
             var match = re.Match(JsonText);
-            var items = new List<string>();
-            while (match.Success)
+            if (match.Success)
             {
-                items.Add(match.Groups["data"].Success ? match.Groups["data"].Value : match.Value);
-                match = match.NextMatch();
+                var items = new List<string>();
+                while (match.Success)
+                {
+                    items.Add(match.Groups["data"].Success ? match.Groups["data"].Value : match.Value);
+                    match = match.NextMatch();
+                }
+                JsonText = $"[{string.Join(",", items)}]";
             }
-            JsonText = $"[{string.Join(",", items)}]";
+            else if (!string.IsNullOrEmpty(errorText))
+            {
+                JsonText = $"{{\"error\":\"{errorText}\"}}";
+            }
+            return this;
+        }
+
+        public static implicit operator string(JsonResponseResult result)
+        {
+            return result?.JsonText;
+        }
+
+        public bool HasError
+        {
+            get
+            {
+                var re = new Regex("(error|err-msg|error-message)[\"']?:[\"']?(?<error>.*?)[\"',}]", RegexOptions.IgnoreCase);
+                var match = re.Match(JsonText);
+
+                if (match.Success)
+                {
+                    Error = match.Groups["error"].Value;
+                }
+
+                return match.Success;
+            }
         }
     }
 }

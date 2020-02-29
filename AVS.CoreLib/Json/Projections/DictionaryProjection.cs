@@ -23,6 +23,7 @@ namespace AVS.CoreLib.Json
         private Func<string, TKey> _keyFunc = null;
         private Func<TValue, TValue> _valueFunc = null;
         private Func<string, bool> _where = null;
+
         [DebuggerStepThrough]
         public DictionaryProjection(string jsonText) : base(jsonText)
         {
@@ -177,7 +178,7 @@ namespace AVS.CoreLib.Json
 
                     if (kp.Value.Type != JTokenType.Object)
                         throw new JsonReaderException($"Unexpected JToken type {kp.Value.Type}");
-                    
+
                     var value = (TValue)serializer.Deserialize(kp.Value.CreateReader(), itemType);
 
                     var key = _keyFunc == null ? ConvertToTKey<TKey>(kp.Key) : _keyFunc(kp.Key);
