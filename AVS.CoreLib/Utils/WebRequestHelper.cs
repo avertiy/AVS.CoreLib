@@ -71,27 +71,36 @@ namespace AVS.CoreLib.Utils
 
             return jsonText;
         }
-
-        [DebuggerStepThrough]
         private static string FetchResponseAttempt(this HttpWebRequest request)
         {
             try
             {
                 using (WebResponse response = request.GetResponse())
                 {
-                    using (Stream responseStream = response.GetResponseStream())
-                    {
-                        if (responseStream == null)
-                            throw new NullReferenceException("The HttpWebRequest's response stream cannot be empty.");
-                        using (StreamReader streamReader = new StreamReader(responseStream))
-                            return streamReader.ReadToEnd();
-                    }
+                    return response.GetResponseContent();
                 }
             }
-            catch (Exception ex)
+            catch (WebException ex)
             {
-                return $"{{ \"error\": \"Request to {request.RequestUri} failed. {ex.Message}\" }}";
+                var response = ((HttpWebResponse)ex.Response);
+                // check the content
+                var content = response.GetResponseContent()?.Replace('"','\'');
+                return $"{{ \"error\": \"Request to {request.RequestUri} failed: {ex.Message} [body: {content}]\" }}";
             }
+        }
+
+        private static string GetResponseContent(this WebResponse response)
+        {
+            using (Stream responseStream = response.GetResponseStream())
+            {
+                if (responseStream != null)
+                {
+                    using (StreamReader streamReader = new StreamReader(responseStream))
+                        return streamReader.ReadToEnd();
+                }
+            }
+
+            return String.Empty;
         }
 
         [DebuggerStepThrough]

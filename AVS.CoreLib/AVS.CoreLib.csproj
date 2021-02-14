@@ -96,6 +96,7 @@
     <Compile Include="ClientApi\Command.cs" />
     <Compile Include="ClientApi\WebClients\PrivateApiWebClient.cs" />
     <Compile Include="ClientApi\WebClients\PublicApiWebClient.cs" />
+    <Compile Include="Extensions\UnixEpoch.cs" />
     <Compile Include="Infrastructure\Config\TaskNode.cs" />
     <Compile Include="Json\Converters\ArrayConverter.cs" />
     <Compile Include="Json\MapJsonException.cs" />

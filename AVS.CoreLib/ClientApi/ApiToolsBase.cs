@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Threading.Tasks;
 using AVS.CoreLib.ClientApi.WebClients;
 using AVS.CoreLib.Json;
@@ -20,6 +18,11 @@ namespace AVS.CoreLib.ClientApi
         protected JsonResponseResult Execute(ApiCommand cmd, RequestData data)
         {
             return Execute(cmd.Command, data, cmd.Version, cmd.Verb);
+        }
+
+        protected Task<JsonResponseResult> ExecuteAsync(ApiCommand cmd, RequestData data)
+        {
+            return ExecuteAsync(cmd.Command, data, cmd.Version, cmd.Verb);
         }
 
         protected virtual JsonResponseResult Execute(string command, RequestData data, string apiVersion = null, string method = null)
