@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Configuration;
+using System.Threading.Tasks;
 using AVS.CoreLib.Infrastructure.Config;
 
 
@@ -10,6 +10,8 @@ namespace AVS.CoreLib.Infrastructure
         ContainerManager ContainerManager { get; }
 
         void Initialize(IAppConfig config);
+
+        Task RunBackgroundTasksAsync();
 
         T Resolve<T>() where T : class;
 

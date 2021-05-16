@@ -82,10 +82,15 @@ namespace AVS.CoreLib.Utils
             }
             catch (WebException ex)
             {
-                var response = ((HttpWebResponse)ex.Response);
-                // check the content
-                var content = response.GetResponseContent()?.Replace('"','\'');
-                return $"{{ \"error\": \"Request to {request.RequestUri} failed: {ex.Message} [body: {content}]\" }}";
+                var response = ex.Response as HttpWebResponse;
+                string content = string.Empty;
+                if (response != null)
+                {
+                    // check the content
+                    content = $"[body: {response.GetResponseContent()?.Replace('"', '\'')}]";
+                }
+                
+                return $"{{ \"error\": \"Request to {request.RequestUri} failed: {ex.Message} {content}\" }}";
             }
         }
 

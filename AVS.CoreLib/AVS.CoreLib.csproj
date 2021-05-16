@@ -98,6 +98,7 @@
     <Compile Include="ClientApi\WebClients\PublicApiWebClient.cs" />
     <Compile Include="Extensions\UnixEpoch.cs" />
     <Compile Include="Infrastructure\Config\TaskNode.cs" />
+    <Compile Include="Infrastructure\IBackgroundTask.cs" />
     <Compile Include="Json\Converters\ArrayConverter.cs" />
     <Compile Include="Json\MapJsonException.cs" />
     <Compile Include="Json\Projections\DictionaryProjection.cs" />

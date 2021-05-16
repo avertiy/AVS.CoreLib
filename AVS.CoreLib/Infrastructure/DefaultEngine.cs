@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Autofac;
 using AutoMapper;
 using AVS.CoreLib.DependencyRegistrar;
@@ -45,7 +46,16 @@ namespace AVS.CoreLib.Infrastructure
                 return;
             this.RunStartupTasks();
         }
-        
+
+        public async Task RunBackgroundTasksAsync()
+        {
+            var tasks = ResolveAll<IBackgroundTask>();
+            foreach (var backgroundTask in tasks.OrderBy(x => x.Order))
+            {
+                await backgroundTask.ExecuteAsync();
+            }
+        }
+
         public T Resolve<T>() where T : class
         {
             try
@@ -54,7 +64,7 @@ namespace AVS.CoreLib.Infrastructure
             }
             catch (Exception ex)
             {
-                throw new Exception($"Autofac=> unable to resolve {typeof(T).Name}",ex);
+                throw new Exception($"Autofac => unable to resolve {typeof(T).Name}",ex);
             }
         }
 
